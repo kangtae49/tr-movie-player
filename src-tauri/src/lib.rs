@@ -9,7 +9,7 @@ use tauri_specta::{collect_commands, Builder};
 use tokio::sync::{Mutex, RwLock};
 
 use crate::http_server::{HttpServer, ServInfo};
-use crate::err::{ApiError, Result};
+use crate::err::{ApiError, ApiResult};
 
 #[derive(Clone)]
 struct AppState {
@@ -21,14 +21,14 @@ struct AppState {
 
 #[tauri::command]
 #[specta::specta]
-fn get_resource_path() -> Result<String> {
+fn get_resource_path() -> ApiResult<String> {
     let p = utils::get_resource_path()?;
     Ok(p.to_string_lossy().to_string())
 }
 
 #[tauri::command]
 #[specta::specta]
-async fn run_http_server(state: State<'_, Arc<RwLock<AppState>>>, serv_info: ServInfo) -> Result<ServInfo> {
+async fn run_http_server(state: State<'_, Arc<RwLock<AppState>>>, serv_info: ServInfo) -> ApiResult<ServInfo> {
     let app_state = state.inner().clone();
     let mut serv = http_server::HttpServer::new(serv_info);
     let serv_info = serv.run(app_state.clone()).await?;
@@ -41,7 +41,7 @@ async fn run_http_server(state: State<'_, Arc<RwLock<AppState>>>, serv_info: Ser
 
 #[tauri::command]
 #[specta::specta]
-async fn shutdown_http_server(state: State<'_, Arc<RwLock<AppState>>>, id: String) -> Result<()> {
+async fn shutdown_http_server(state: State<'_, Arc<RwLock<AppState>>>, id: String) -> ApiResult<()> {
     let app_state = state.inner().clone();
     let serv = app_state.write().await.http_server_map.remove(&id).ok_or(ApiError::Error("not exist id".to_string()))?;
     let mut serv = serv.lock().await;

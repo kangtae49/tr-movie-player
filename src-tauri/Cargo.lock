@@ -4624,7 +4624,11 @@ name = "tr-movie-player"
 version = "0.1.0"
 dependencies = [
  "axum 0.8.4",
+ "bytes",
+ "futures",
  "http",
+ "http-body-util",
+ "mime_guess",
  "rspc",
  "rspc-axum",
  "schemars 1.0.4",
@@ -4636,11 +4640,11 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-dialog",
- "tauri-plugin-fs",
  "tauri-plugin-opener",
  "tauri-specta",
  "thiserror 2.0.12",
  "tokio",
+ "tokio-util",
  "tower-http",
 ]
 

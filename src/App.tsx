@@ -3,6 +3,7 @@ import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import AppLayout from "./routes/AppLayout.tsx";
 import ErrorView from "./routes/ErrorView.tsx";
 import MainView from "./routes/MainView.tsx";
+import {useHttp} from "@/components/HttpServerProvider.tsx";
 
 export const router = createBrowserRouter([
   {
@@ -15,7 +16,7 @@ export const router = createBrowserRouter([
         element: <MainView />,
       },
       {
-        path: '/youtube',
+        path: '/movie-player',
         element: <MainView />,
       },
     ]
@@ -23,6 +24,8 @@ export const router = createBrowserRouter([
 ]);
 
 function App() {
+  const httpServer = useHttp();
+  if (httpServer === undefined) return (<div>Loading...</div>)
   return (
     <main className="container">
       <RouterProvider router={router} />

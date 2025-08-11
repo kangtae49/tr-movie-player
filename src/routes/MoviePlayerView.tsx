@@ -1,28 +1,38 @@
-import {commands} from "@/bindings.ts";
+import {useHttp} from "@/components/HttpServerProvider.tsx";
+import TestView from "@/components/TestView.tsx";
 import {useState} from "react";
 
 function MoviePlayerView() {
-  const [port, setPort] = useState<string>("0");
-  const clickStart = async () => {
-    commands.runHttpServer({
-      id: port,
-      ip: '0.0.0.0',
-      port: 0,
-      path: '',
-    }).then(console.log)
-      .catch(console.error);
-  }
+  const [vttString, setVttString] = useState('');
+  const httpServer = useHttp();
+  console.log('MoviePlayerView:', httpServer?.servInfo)
+  const mp4 = 'C:/Users/kkt/Downloads/Severus Snape and the Marauders ｜ Harry Potter Prequel [EmsntGGjxiw].mp4';
+  const vtt = 'C:/Users/kkt/Downloads/Severus Snape and the Marauders ｜ Harry Potter Prequel [EmsntGGjxiw].ko.vtt';
+  // const vttString = 'WEBVTT\n\n00:00:00.000 --> 00:00:02.000\nSeverus Snape and the Marauders';
+  const blob = new Blob([vttString], {type: 'text/vtt'});
+  const blobUrl = URL.createObjectURL(blob);
 
-  const clickShutdown = async () => {
-    console.log('shutdown');
-    commands.shutdownHttpServer(port).then(console.log)
-      .catch(console.error);
-  }
+  fetch(`http://localhost:${httpServer?.servInfo.port}/get_file?path=${vtt}`).then(res => {
+    return res.text()
+  }).then(text => {
+    setVttString(text);
+  });
+
   return (
-    <div>
-      <div><input type="text" value={port} onChange={(e) => setPort(e.target.value)} /> </div>
-      <div onClick={() => clickStart()}>start</div>
-      <div onClick={() => clickShutdown()}>shutdown</div>
+    <div className="movie-pane">
+      <div>{httpServer?.servInfo.port}</div>
+      <div className="video">
+        <video controls>
+          <source src={`http://localhost:${httpServer?.servInfo.port}/get_file?path=${mp4}`} type="video/mp4" />
+          {/*<track src={`http://localhost:${httpServer?.servInfo.port}/get_file?path=${vtt}`}*/}
+          <track src={blobUrl}
+                 kind="subtitles"
+                 srcLang="ko"
+                 label="Korean"
+                 default
+          />
+        </video>
+      </div>
     </div>
   )
 }

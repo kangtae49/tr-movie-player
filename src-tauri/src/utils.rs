@@ -1,7 +1,7 @@
 use std::env;
 use std::path::PathBuf;
-use crate::err::{Result, ApiError};
-pub fn get_resource_path() -> Result<PathBuf> {
+use crate::err::{ApiResult, ApiError};
+pub fn get_resource_path() -> ApiResult<PathBuf> {
     if tauri::is_dev() {
         let current_path = env::current_dir()?;
         Ok(current_path.join("resources"))

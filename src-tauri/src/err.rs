@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use specta::Type;
 use thiserror::Error;
 
-pub type Result<T> = std::result::Result<T, ApiError>;
+pub type ApiResult<T> = std::result::Result<T, ApiError>;
 #[derive(Type, Serialize, Deserialize, Error, Debug)]
 pub enum ApiError {
     #[error("Api error: {0}")]
