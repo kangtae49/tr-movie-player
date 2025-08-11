@@ -7,10 +7,11 @@ TODO:
 play/pause
 fullscreen
 subtitle on/off select
-time slider
+time slider (total time/current time)
 sound slider mute on/off
 speed select
 play list (drag and drop?)
+srt->vtt convert
  */
 
 
@@ -26,16 +27,11 @@ function MoviePlayerView() {
     console.log('MoviePlayerView:', httpServer?.servInfo)
     const mp4 = 'C:/Users/kkt/Downloads/Severus Snape and the Marauders ｜ Harry Potter Prequel [EmsntGGjxiw].mp4';
     const vtt = 'C:/Users/kkt/Downloads/Severus Snape and the Marauders ｜ Harry Potter Prequel [EmsntGGjxiw].ko.vtt';
-    // const vttString = 'WEBVTT\n\n00:00:00.000 --> 00:00:02.000\nSeverus Snape and the Marauders';
 
     setMp4(mp4);
-    fetch(`http://localhost:${httpServer?.servInfo.port}/get_file?path=${vtt}`).then(res => {
-      return res.text()
-    }).then(text => {
-      const blob = new Blob([text], {type: 'text/vtt'});
-      const blobUrl = URL.createObjectURL(blob);
-      setBlobUrl(blobUrl);
-    });
+    httpServer?.getSrcBlobUrl(vtt).then(setBlobUrl);
+
+
   }
 
 
@@ -91,7 +87,6 @@ function MoviePlayerView() {
       )}
       {!isFullscreen && (
         <div className="control-pane">
-          isFullscreen: {isFullscreen}
           <div onClick={() => play()}>play</div>
         </div>
       )}

@@ -8,11 +8,17 @@ type Props = {
 };
 
 type HttpContextType = {
-  servInfo: ServInfo;
+  servInfo: ServInfo
+  getSrc: (path: string) => string
+  getSrcJson: (path: string) => Promise<any>
+  getSrcText: (path: string) => Promise<string>
+  getSrcBlob: (path: string) => Promise<Blob>
+  getSrcBlobUrl: (path: string) => Promise<string>
 }
 
 export function HttpServerProvider({children}: Props) {
   const [httpServer, setHttpServer] = useState<HttpContextType|undefined>(undefined);
+  const [servInfo, setServInfo] = useState<ServInfo|undefined>(undefined);
   useEffect(() => {
     commands.runHttpServer({
       id: "tr-movie-player-http",
@@ -21,11 +27,49 @@ export function HttpServerProvider({children}: Props) {
       path: '',
     }).then(res => {
       if (res.status === 'ok') {
-        const servInfo = res.data;
-        setHttpServer({servInfo});
+        setServInfo(res.data);
       }
     });
   }, [])
+
+  useEffect(() => {
+    if(servInfo == undefined) return;
+    // const getSrc = (path: string) => `http://localhost:${servInfo.port}/get_file?path=${path}`;
+    // const getSrcJson = <T>(path: string) => {
+    //   return fetch(getSrc(path)).then(res => {
+    //     return res.json() as Promise<T>;
+    //   })
+    // };
+    // const getSrcText = async (path: string): Promise<string> => {
+    //   return fetch(getSrc(path)).then(res => res.text());
+    // };
+    setHttpServer({
+      servInfo: servInfo,
+      getSrc: (path: string) => `http://localhost:${servInfo.port}/get_file?path=${path}`,
+      getSrcJson: async (path: string) => {
+        const url = `http://localhost:${servInfo.port}/get_file?path=${path}`;
+        return fetch(url)
+          .then(res => res.json());
+      },
+      getSrcText: async (path: string) => {
+        const url = `http://localhost:${servInfo.port}/get_file?path=${path}`;
+        return fetch(url)
+          .then(res => res.text())
+      },
+      getSrcBlob: async (path: string) => {
+        const url = `http://localhost:${servInfo.port}/get_file?path=${path}`;
+        return fetch(url)
+          .then(res => res.blob());
+      },
+      getSrcBlobUrl: async (path: string) => {
+        const url = `http://localhost:${servInfo.port}/get_file?path=${path}`;
+        return fetch(url)
+          .then(res => res.blob())
+          .then(blob => URL.createObjectURL(blob))
+      },
+    });
+
+  }, [servInfo]);
   return (
     <HttpContext.Provider value={httpServer}>
       {children}
@@ -36,3 +80,6 @@ export function HttpServerProvider({children}: Props) {
 export function useHttp() {
   return useContext(HttpContext);
 }
+
+
+
