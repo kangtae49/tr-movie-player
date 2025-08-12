@@ -20,6 +20,9 @@ pub enum ApiError {
     #[error("Tokio error: {0}")]
     TokioError(String),
 
+    #[error("Glob error: {0}")]
+    GlobError(String),
+
 //     #[error("Win32 error: {0}")]
 //     Win32Error(String),
 }
@@ -52,9 +55,16 @@ impl From<tokio::sync::oneshot::error::RecvError> for ApiError {
         ApiError::TokioError(e.to_string())
     }
 }
+
+impl From<glob::PatternError> for ApiError {
+    fn from(e: glob::PatternError) -> Self {
+        ApiError::GlobError(e.to_string())
+    }
+}
 // impl From<windows::core::Error> for ApiError {
 //     fn from(e: windows::core::Error) -> Self {
 //         ApiError::Win32Error(e.to_string())
 //     }
 // }
 
+// glob::PatternError;

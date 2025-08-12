@@ -229,7 +229,6 @@ async fn get_file(Query(params): Query<HashMap<String, String>>,
 
     let mime_type = from_path(&path).first_or_octet_stream();
 
-    // Range 요청 처리
     if let Some(range_header) = headers.get(header::RANGE) {
         if let Ok(range_str) = range_header.to_str() {
             if let Some((start, end)) = parse_range_header(range_str, file_size) {
@@ -240,17 +239,12 @@ async fn get_file(Query(params): Query<HashMap<String, String>>,
                 }
 
                 let limited_reader = file.take(chunk_size);
-                // let stream = ReaderStream::new(limited_reader);
-                let stream = ReaderStream::new(limited_reader)
-                    // .map_ok(|bytes_mut| bytes_mut.freeze())
-                    ;
+                let stream = ReaderStream::new(limited_reader);
                 let body = StreamBody::new(stream);
-
 
                 let content_range = format!("bytes {}-{}/{}", start, end, file_size);
 
                 return
-                    // Ok(
                     Response::builder()
                     .status(StatusCode::PARTIAL_CONTENT)
                     .header(CONTENT_TYPE, mime_type.to_string())
@@ -260,7 +254,6 @@ async fn get_file(Query(params): Query<HashMap<String, String>>,
                     .body(Body::from_stream(body))
                     .unwrap()
                     .into_response()
-                    // )
                 ;
 
 
@@ -270,8 +263,6 @@ async fn get_file(Query(params): Query<HashMap<String, String>>,
 
     let limited_reader = file.take(file_size);
     let stream = ReaderStream::new(limited_reader);
-        // .map_ok(|bytes_mut| bytes_mut.freeze());
-
     let body = StreamBody::new(stream);
 
     Response::builder()
