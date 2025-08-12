@@ -10,6 +10,7 @@
     "opener:default",
     "core:webview:allow-internal-toggle-devtools",
     "dialog:default",
-    "core:window:allow-set-fullscreen"
+    "core:window:allow-set-fullscreen",
+    "dialog:default"
   ]
 }

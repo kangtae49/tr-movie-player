@@ -1,11 +1,13 @@
 import React, {useCallback, useEffect, useState} from "react";
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome'
-import {faCirclePlay, faCirclePause, faMaximize, faVolumeMute, faVolumeHigh, faVolumeXmark} from '@fortawesome/free-solid-svg-icons'
+import {faCirclePlay, faCirclePause, faMaximize, faVolumeHigh, faVolumeXmark} from '@fortawesome/free-solid-svg-icons'
 import {useVideoRefStore} from "@/stores/videoRefStore.ts";
 import {useVideoSrcStore} from "@/stores/videoSrcStore.ts";
 import {useSubtitleSrcStore} from "@/stores/subtitleSrcStore.ts";
 import {useHttp} from "@/components/HttpServerProvider.tsx";
-import {useIsPlayStore} from "@/stores/isPlayStore.ts";
+import {SplitPane} from "@rexxars/react-split-pane";
+import PlayListView from "@/components/PlayListView.tsx";
+import RepeatListView from "@/components/RepeatListView.tsx";
 
 function formatSeconds(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
@@ -27,6 +29,7 @@ function MovieControlView() {
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
+  const [isResizing, setIsResizing] = useState(false);
 
   const clickFullScreen = async () => {
     if (document.fullscreenElement == null){
@@ -146,24 +149,9 @@ function MovieControlView() {
     };
   }, [videoRef])
 
-
-
   return (
-    <div className={`control-pane ${document.fullscreenElement == null ? null : 'fullscreen'}`} >
-      <div onClick={() => load()}>load</div>
-      <div>
-        <Icon icon={isPlay ? faCirclePause : faCirclePlay} onClick={() => togglePlay()}/>
-      </div>
-      <div>
-        <Icon icon={faMaximize} onClick={() => clickFullScreen()} />
-      </div>
-      <div>
-        <Icon icon={isMuted ? faVolumeXmark : faVolumeHigh} onClick={() => toggleMuted()} />
-      </div>
-      <div>
-        {formatSeconds(currentTime)} / {formatSeconds(duration)}
-      </div>
-      <div>
+    <div className={`control-pane ${document.fullscreenElement == null ? '' : 'fullscreen'}`} >
+      <div className="time-control">
         <input
           type="range"
           min={0}
@@ -173,18 +161,56 @@ function MovieControlView() {
           onChange={handleTimeChange}
         />
       </div>
-      <div>
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={volume}
-          onChange={handleVolumeChange}
-        />
+      <div className="etc-control">
+        <div className="left-control">
+          <div>
+            {formatSeconds(currentTime)} / {formatSeconds(duration)}
+          </div>
+          <div onClick={() => load()}>load</div>
+        </div>
+        <div className="center-control">
+          <div>
+            <Icon className="large" icon={isPlay ? faCirclePause : faCirclePlay} onClick={() => togglePlay()}/>
+          </div>
+          <div>
+            {playbackRate}
+          </div>
+        </div>
+        <div className="right-control">
+          <div>
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.01}
+              value={volume}
+              onChange={handleVolumeChange}
+            />
+          </div>
+          <div>
+            <Icon icon={isMuted ? faVolumeXmark : faVolumeHigh} onClick={() => toggleMuted()} />
+          </div>
+          <div>
+            <Icon icon={faMaximize} onClick={() => clickFullScreen()} />
+          </div>
+        </div>
       </div>
-      <div>
-        {playbackRate}
+      <div className="list-control">
+        <SplitPane
+          className="v-split-pane"
+          split="vertical"
+          primary="second"
+          defaultSize={400}
+          style={{
+            height: 'calc(100% - 74px)',
+          }}
+          onDragStarted={() => setIsResizing(true)}
+          onDragFinished={() => setIsResizing(false)}
+        >
+          <RepeatListView />
+          <PlayListView />
+          {(isResizing) && <div className="iframe-overlay2" />}
+        </SplitPane>
       </div>
     </div>
   )

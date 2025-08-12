@@ -1,7 +1,7 @@
 @import url('resizer.css');
 :root {
   --selected-color: #f4a261;
-  --selected-color2: #2a9d8f;
+  --selected-color2: #bfd2e3;
   --hover-color: #bd623c;
   --scale: scale(1.3);
 }
@@ -36,6 +36,12 @@ div, input {
   box-sizing: border-box;
 }
 
+.SplitPane {
+  flex: 1;
+  /*width: 100%;*/
+  /*height: 100%;*/
+}
+
 .main-pane .movie-pane {
   width: 100%;
   height: 100%;
@@ -45,10 +51,43 @@ div, input {
 
 .main-pane .control-pane {
   display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
+  padding: 5px;
+}
+.main-pane .control-pane input {
+  width: 100%;
 }
 
+.control-pane .time-control {
+  width: 100%;
+
+}
+.control-pane .etc-control {
+  display: flex;
+  width: 100%;
+}
+.control-pane .list-control {
+  flex: 1;
+  display: flex;
+}
+
+.etc-control .left-control {
+  flex: 0 0 300px;
+}
+.etc-control .center-control {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.etc-control .right-control {
+  flex: 0 0 300px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
 
 
 .video {
@@ -61,8 +100,42 @@ video {
   height: 100%;
   object-fit: contain;
 }
-.fa-circle-play { width: 30px; height: 30px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
-.fa-circle-play:hover { transform: var(--scale); color: var(--hover-color); }
+
+
+
+.play-list {
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  width: 100%;
+  height: 100%;
+}
+.play-list .play-list-header {
+  flex: 0 0 25px;
+}
+.play-list-sortable {
+  flex: 1;
+  overflow-y: auto;
+  height: calc(100% - 25px);
+}
+
+.play-list .play-item {
+  display: flex;
+
+  text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
+}
+
+.play-list .play-item.selected {
+  background-color: var(--selected-color2);
+}
+
+.play-list .play-item .item-path  {
+  cursor: pointer;
+}
+
+
+.fa-circle-play.large { width: 30px; height: 30px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-circle-play.large:hover { transform: var(--scale); color: var(--hover-color); }
 .fa-circle-pause { width: 30px; height: 30px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
 .fa-circle-pause:hover { transform: var(--scale); color: var(--hover-color); }
 .fa-maximize { width: 30px; height: 30px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
@@ -71,3 +144,17 @@ video {
 .fa-volume-high:hover { transform: var(--scale); color: var(--hover-color); }
 .fa-volume-xmark { width: 30px; height: 30px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
 .fa-volume-xmark:hover { transform: var(--scale); color: var(--hover-color); }
+
+.fa-circle-plus { width: 20px; height: 20px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-circle-plus:hover { transform: var(--scale); color: var(--hover-color); }
+.fa-circle-minus { width: 20px; height: 20px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-circle-minus:hover { transform: var(--scale); color: var(--hover-color); }
+.fa-forward-step { width: 20px; height: 20px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-forward-step:hover { transform: var(--scale); color: var(--hover-color); }
+.fa-backward-step { width: 20px; height: 20px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-backward-step:hover { transform: var(--scale); color: var(--hover-color); }
+
+.fa-circle-xmark { color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-circle-xmark:hover { transform: var(--scale); color: var(--hover-color); }
+.fa-circle-play.small { color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-circle-play.small:hover { transform: var(--scale); color: var(--hover-color); }

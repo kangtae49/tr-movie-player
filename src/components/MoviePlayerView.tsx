@@ -26,13 +26,14 @@ function MoviePlayerView() {
     console.log('videoRef:', videoRef);
     setVideoRef(vRef);
   }, [videoRef]);
-
+  console.log('videoSrc:', videoSrc);
   return (
     <div className="movie-pane">
       <div className="video">
         <video
           ref={vRef}
-          controls={true}
+          src={videoSrc}
+          controls={false}
           autoPlay={false}
           style={{
             // objectFit: 'fill',
@@ -40,7 +41,8 @@ function MoviePlayerView() {
             objectFit: 'cover',
           }}
         >
-          {videoSrc && (<source src={videoSrc} type="video/mp4" />)}
+          {/*{videoSrc && (<source src={videoSrc} type="video/mp4" />)}*/}
+          <source src={videoSrc} />
           {subtitleSrc && (
             <track src={subtitleSrc}
                    kind="subtitles"

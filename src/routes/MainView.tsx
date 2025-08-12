@@ -1,7 +1,7 @@
-import MoviePlayerView from "@/routes/MoviePlayerView.tsx";
+import MoviePlayerView from "@/components/MoviePlayerView.tsx";
 import {SplitPane} from "@rexxars/react-split-pane";
 import {useState} from "react";
-import MovieControlView from "@/routes/MovieControlView.tsx";
+import MovieControlView from "@/components/MovieControlView.tsx";
 
 function MainView() {
   const [isResizing, setIsResizing] = useState(false);
@@ -10,7 +10,7 @@ function MainView() {
       <SplitPane
         className="split-pane"
         split="horizontal"
-        primary="second"
+        primary="first"
         defaultSize={200}
         onDragStarted={() => setIsResizing(true)}
         onDragFinished={() => setIsResizing(false)}
