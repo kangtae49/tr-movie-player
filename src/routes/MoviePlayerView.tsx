@@ -1,6 +1,7 @@
-import {useHttp} from "@/components/HttpServerProvider.tsx";
-import React, {useEffect, useRef, useState} from "react";
-import {getAllWindows} from "@tauri-apps/api/window";
+import React, {useEffect, useRef} from "react";
+import {useVideoRefStore} from "@/stores/videoRefStore.ts";
+import {useVideoSrcStore} from "@/stores/videoSrcStore.ts";
+import {useSubtitleSrcStore} from "@/stores/subtitleSrcStore.ts";
 
 /*
 TODO:
@@ -16,80 +17,40 @@ srt->vtt convert
 
 
 function MoviePlayerView() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [blobUrl, setBlobUrl] = useState<string | undefined>(undefined);
-  const [mp4, setMp4] = useState<string | undefined>(undefined);
-  const httpServer = useHttp();
-
-
-  const play = () => {
-    console.log('MoviePlayerView:', httpServer?.servInfo)
-    const mp4 = 'C:/Users/kkt/Downloads/Severus Snape and the Marauders ｜ Harry Potter Prequel [EmsntGGjxiw].mp4';
-    const vtt = 'C:/Users/kkt/Downloads/Severus Snape and the Marauders ｜ Harry Potter Prequel [EmsntGGjxiw].ko.vtt';
-
-    setMp4(mp4);
-    httpServer?.getSrcBlobUrl(vtt).then(setBlobUrl);
-
-
-  }
-
-
+  const vRef = useRef<HTMLVideoElement>(null);  const videoRef = useVideoRefStore((state) => state.videoRef);
+  const setVideoRef = useVideoRefStore((state) => state.setVideoRef);
+  const videoSrc = useVideoSrcStore((state) => state.videoSrc);
+  const subtitleSrc = useSubtitleSrcStore((state) => state.subtitleSrc);
 
   useEffect(() => {
-    const handleKeydown = async (e: KeyboardEvent) => {
-
-      if (e.key === "F11") {
-        e.preventDefault();
-        const windows = await getAllWindows();
-        const mainWindow = windows[0];
-        if (!document.fullscreenElement){
-          await videoRef.current?.requestFullscreen();
-          await mainWindow.setFullscreen(true);
-          setIsFullscreen(true);
-        } else {
-          await document.exitFullscreen();
-          await mainWindow.setFullscreen(false);
-          setIsFullscreen(false);
-        }
-      }
-    }
-    window.addEventListener("keydown", handleKeydown, { capture: true });
-    return () => {
-      window.removeEventListener("keydown", handleKeydown, { capture: true });
-    };
-  }, [])
+    console.log('videoRef:', videoRef);
+    setVideoRef(vRef);
+  }, [videoRef]);
 
   return (
     <div className="movie-pane">
-      {mp4 && (
-        <div className="video">
-          <video
-            ref={videoRef}
-            controls={true}
-            style={{
-              // objectFit: 'fill',
-              // objectFit: 'contain',
-              objectFit: 'cover',
-            }}
-          >
-            <source src={`http://localhost:${httpServer?.servInfo.port}/get_file?path=${mp4}`} type="video/mp4" />
-            {blobUrl && (
-              <track src={blobUrl}
-                     kind="subtitles"
-                     srcLang="ko"
-                     label="Korean"
-                     default
-              />
-            )}
-          </video>
-        </div>
-      )}
-      {!isFullscreen && (
-        <div className="control-pane">
-          <div onClick={() => play()}>play</div>
-        </div>
-      )}
+      <div className="video">
+        <video
+          ref={vRef}
+          controls={true}
+          autoPlay={false}
+          style={{
+            // objectFit: 'fill',
+            // objectFit: 'contain',
+            objectFit: 'cover',
+          }}
+        >
+          {videoSrc && (<source src={videoSrc} type="video/mp4" />)}
+          {subtitleSrc && (
+            <track src={subtitleSrc}
+                   kind="subtitles"
+                   srcLang="ko"
+                   label="Korean"
+                   default
+            />
+          )}
+        </video>
+      </div>
     </div>
   )
 }

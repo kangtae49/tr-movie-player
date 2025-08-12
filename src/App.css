@@ -1,3 +1,4 @@
+@import url('resizer.css');
 :root {
   --selected-color: #f4a261;
   --selected-color2: #2a9d8f;
@@ -34,11 +35,18 @@ input, select {
 div, input {
   box-sizing: border-box;
 }
-.movie-pane {
+
+.main-pane .movie-pane {
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.main-pane .control-pane {
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
 
 
@@ -53,3 +61,13 @@ video {
   height: 100%;
   object-fit: contain;
 }
+.fa-circle-play { width: 30px; height: 30px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-circle-play:hover { transform: var(--scale); color: var(--hover-color); }
+.fa-circle-pause { width: 30px; height: 30px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-circle-pause:hover { transform: var(--scale); color: var(--hover-color); }
+.fa-maximize { width: 30px; height: 30px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-maximize:hover { transform: var(--scale); color: var(--hover-color); }
+.fa-volume-high { width: 30px; height: 30px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-volume-high:hover { transform: var(--scale); color: var(--hover-color); }
+.fa-volume-xmark { width: 30px; height: 30px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-volume-xmark:hover { transform: var(--scale); color: var(--hover-color); }
