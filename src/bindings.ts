@@ -44,6 +44,22 @@ async convertSrtToVtt(movieFilepath: string) : Promise<Result<string, ApiError>>
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+async readRepeatJson(jsonPath: string) : Promise<Result<RepeatJson, ApiError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("read_repeat_json", { jsonPath }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async writeRepeatJson(jsonPath: string, json: RepeatJson) : Promise<Result<null, ApiError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("write_repeat_json", { jsonPath, json }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -58,6 +74,8 @@ async convertSrtToVtt(movieFilepath: string) : Promise<Result<string, ApiError>>
 /** user-defined types **/
 
 export type ApiError = { Error: string } | { TauriError: string } | { Io: string } | { JsonError: string } | { TokioError: string } | { GlobError: string }
+export type RepeatItem = { id: string; start: number; end: number; desc?: string | null }
+export type RepeatJson = { items: RepeatItem[] }
 export type ServInfo = { id: string; ip: string; port: number; path: string }
 export type Subtitle = { path: string; filename: string; lang?: string | null; lang_nm?: string | null; ext: string }
 

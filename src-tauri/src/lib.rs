@@ -11,7 +11,7 @@ use tokio::sync::{Mutex, RwLock};
 
 use crate::http_server::{HttpServer, ServInfo};
 use crate::err::{ApiError, ApiResult};
-use crate::media::Subtitle;
+use crate::media::{RepeatJson, Subtitle};
 
 #[derive(Clone)]
 struct AppState {
@@ -64,7 +64,17 @@ async fn convert_srt_to_vtt(movie_filepath: String) -> ApiResult<String> {
     media::srt_to_vtt(movie_filepath)
 }
 
+#[tauri::command]
+#[specta::specta]
+async fn read_repeat_json(json_path: String) -> ApiResult<RepeatJson> {
+    media::read_repeat_json(json_path)
+}
 
+#[tauri::command]
+#[specta::specta]
+async fn write_repeat_json(json_path: String, json: RepeatJson) -> ApiResult<()> {
+    media::write_repeat_json(json_path, json)
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub async fn run() {
@@ -74,6 +84,8 @@ pub async fn run() {
         shutdown_http_server,
         get_subtitle_list,
         convert_srt_to_vtt,
+        read_repeat_json,
+        write_repeat_json,
     ]);
 
     #[cfg(debug_assertions)]

@@ -1,5 +1,6 @@
 use std::path::{PathBuf};
 use glob::{glob, Pattern};
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
 use specta::Type;
@@ -270,6 +271,35 @@ pub fn srt_to_vtt(srt_path: String) -> ApiResult<String> {
     Ok(vtt_content)
 }
 
+#[skip_serializing_none]
+#[serde_as]
+#[derive(Type, Serialize, Deserialize, JsonSchema, Clone, Debug)]
+pub struct RepeatItem {
+    id: String,
+    start: u32,
+    end: u32,
+    desc: Option<String>
+}
+
+#[skip_serializing_none]
+#[serde_as]
+#[derive(Type, Serialize, Deserialize, JsonSchema, Clone, Debug)]
+pub struct RepeatJson {
+    items: Vec<RepeatItem>
+}
+
+
+pub fn read_repeat_json(json_path: String) -> ApiResult<RepeatJson> {
+    let json_str = std::fs::read_to_string(json_path)?;
+    let json: RepeatJson = serde_json::from_str(&json_str)?;
+    Ok(json)
+}
+
+pub fn write_repeat_json(json_path: String, json: RepeatJson) -> ApiResult<()> {
+    let json_str = serde_json::to_string_pretty(&json)?;
+    std::fs::write(json_path, json_str)?;
+    Ok(())
+}
 
 #[cfg(test)]
 mod tests {

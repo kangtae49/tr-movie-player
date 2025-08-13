@@ -8,10 +8,8 @@ import {arrayMove, horizontalListSortingStrategy, SortableContext} from "@dnd-ki
 import PlayItemView from "@/components/PlayItemView.tsx";
 import {usePlayItemsStore} from "@/stores/playItemsStore.ts";
 import {useSelectedPlayItemStore} from "@/stores/selectedPlayItemStore.ts";
-import {useVideoRefStore} from "@/stores/videoRefStore.ts";
 import {useHttp} from "@/components/HttpServerProvider.tsx";
 import {useVideoSrcStore} from "@/stores/videoSrcStore.ts";
-import {useSubtitleSrcStore} from "@/stores/subtitleSrcStore.ts";
 import {commands} from "@/bindings.ts";
 import {useSubtitlesStore} from "@/stores/subtitlesStore.ts";
 import {useSelectedSubtitleStore} from "@/stores/selectedSubtitleStore.ts";
@@ -27,12 +25,8 @@ function PlayListView() {
   const setPlayItems = usePlayItemsStore((state) => state.setPlayItems);
   const selectedPlayItem = useSelectedPlayItemStore((state) => state.selectedPlayItem);
   const setSelectedPlayItem = useSelectedPlayItemStore((state) => state.setSelectedPlayItem);
-  const videoRef = useVideoRefStore((state) => state.videoRef);
   const setVideoSrc = useVideoSrcStore((state) => state.setVideoSrc);
-  const setSubtitleSrc = useSubtitleSrcStore((state) => state.setSubtitleSrc);
-  const subtitles = useSubtitlesStore((state) => state.subtitles);
   const setSubtitles = useSubtitlesStore((state) => state.setSubtitles);
-  const selectedSubtitle = useSelectedSubtitleStore((state) => state.selectedSubtitle);
   const setSelectedSubtitle = useSelectedSubtitleStore((state) => state.setSelectedSubtitle);
   const subtitleType = useSubtitleTypeStore((state) => state.subtitleType);
 
@@ -103,7 +97,7 @@ function PlayListView() {
         activeId = getPlayItemId(selectedPlayItem);
       }
     }
-    if (overId == 'target') {
+    if (overId == 'target-play') {
       const last = playItems.slice(-1);
       if (last.length > 0) {
         overId = last[0].id;
@@ -154,7 +148,7 @@ function PlayListView() {
 
   return (
     <div className="play-list">
-      <div className="play-list-header">
+      <div className="list-header">
         <Icon icon={faCirclePlus} onClick={openPlayList} />
         <Icon icon={faCircleMinus} onClick={()=>setPlayItems([])} />
         <Icon icon={faBackwardStep} />
@@ -163,7 +157,7 @@ function PlayListView() {
       <DndContext
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}>
-        <SortableContainer id="target">
+        <SortableContainer id="target-play">
         {(playItems != undefined) && (
         <SortableContext items={playItems} strategy={horizontalListSortingStrategy}>
           {(playItems).map((playItem, _index: number) => {

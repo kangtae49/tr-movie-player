@@ -7,7 +7,7 @@ import {useSelectedPlayItemStore} from "@/stores/selectedPlayItemStore.ts";
 
 type Props = {
   playItem: PlayItem
-  removePlayItem: (PlayItem: PlayItem) => void
+  removePlayItem: (playItem: PlayItem) => void
 }
 function PlayItemView({playItem, removePlayItem}: Props) {
   const selectedPlayItem = useSelectedPlayItemStore((state) => state.selectedPlayItem);
@@ -28,7 +28,7 @@ function PlayItemView({playItem, removePlayItem}: Props) {
   };
 
   return (
-    <div className={`play-item ${selectedPlayItem?.id === playItem.id ? 'selected' : ''}`}
+    <div className={`item ${selectedPlayItem?.id === playItem.id ? 'selected' : ''}`}
          ref={(node) => {
            sortable.setNodeRef(node);
          }}
@@ -41,7 +41,7 @@ function PlayItemView({playItem, removePlayItem}: Props) {
       >
         {playItem.path}
       </div>
-      <div className="play-close" onClick={() => removePlayItem(playItem)}><Icon icon={faCircleXmark} /></div>
+      <div className="close" onClick={() => removePlayItem(playItem)}><Icon icon={faCircleXmark} /></div>
     </div>
   )
 }
