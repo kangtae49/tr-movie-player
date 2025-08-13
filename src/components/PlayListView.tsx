@@ -12,6 +12,9 @@ import {useVideoRefStore} from "@/stores/videoRefStore.ts";
 import {useHttp} from "@/components/HttpServerProvider.tsx";
 import {useVideoSrcStore} from "@/stores/videoSrcStore.ts";
 import {useSubtitleSrcStore} from "@/stores/subtitleSrcStore.ts";
+import {commands} from "@/bindings.ts";
+import {useSubtitlesStore} from "@/stores/subtitlesStore.ts";
+import {useSelectedSubtitleStore} from "@/stores/selectedSubtitleStore.ts";
 
 export type PlayItem = {
   id: string,
@@ -26,6 +29,10 @@ function PlayListView() {
   const videoRef = useVideoRefStore((state) => state.videoRef);
   const setVideoSrc = useVideoSrcStore((state) => state.setVideoSrc);
   const setSubtitleSrc = useSubtitleSrcStore((state) => state.setSubtitleSrc);
+  const subtitles = useSubtitlesStore((state) => state.subtitles);
+  const setSubtitles = useSubtitlesStore((state) => state.setSubtitles);
+  const selectedSubtitle = useSelectedSubtitleStore((state) => state.selectedSubtitle);
+  const setSelectedSubtitle = useSelectedSubtitleStore((state) => state.setSelectedSubtitle);
 
   const openPlayList = () => {
     open({
@@ -119,6 +126,13 @@ function PlayListView() {
 
     console.log('MoviePlayerView:', httpServer?.servInfo)
     setVideoSrc(httpServer.getSrc(selectedPlayItem.path));
+    commands.getSubtitleList(selectedPlayItem.path).then(res=>{
+      if(res.status === 'ok') {
+        const subtitles = res.data;
+        setSubtitles(subtitles);
+      }
+    })
+
     // httpServer.getSrcBlobUrl(vtt).then(setSubtitleSrc);
 
     // videoRef.current.src = selectedPlayItem.path;

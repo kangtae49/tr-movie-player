@@ -1,6 +1,7 @@
 mod err;
 mod http_server;
 mod utils;
+mod media;
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -10,6 +11,7 @@ use tokio::sync::{Mutex, RwLock};
 
 use crate::http_server::{HttpServer, ServInfo};
 use crate::err::{ApiError, ApiResult};
+use crate::media::Subtitle;
 
 #[derive(Clone)]
 struct AppState {
@@ -50,12 +52,19 @@ async fn shutdown_http_server(state: State<'_, Arc<RwLock<AppState>>>, id: Strin
     Ok(())
 }
 
+#[tauri::command]
+#[specta::specta]
+async fn get_subtitle_list(movie_filepath: String) -> ApiResult<Vec<Subtitle>> {
+    media::get_subtitle_list(movie_filepath)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub async fn run() {
     let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
         get_resource_path,
         run_http_server,
         shutdown_http_server,
+        get_subtitle_list,
     ]);
 
     #[cfg(debug_assertions)]

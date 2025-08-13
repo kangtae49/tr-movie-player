@@ -28,6 +28,14 @@ async shutdownHttpServer(id: string) : Promise<Result<null, ApiError>> {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+async getSubtitleList(movieFilepath: string) : Promise<Result<Subtitle[], ApiError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_subtitle_list", { movieFilepath }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -41,8 +49,9 @@ async shutdownHttpServer(id: string) : Promise<Result<null, ApiError>> {
 
 /** user-defined types **/
 
-export type ApiError = { Error: string } | { TauriError: string } | { Io: string } | { JsonError: string } | { TokioError: string }
+export type ApiError = { Error: string } | { TauriError: string } | { Io: string } | { JsonError: string } | { TokioError: string } | { GlobError: string }
 export type ServInfo = { id: string; ip: string; port: number; path: string }
+export type Subtitle = { path: string; filename: string; lang?: string | null; lang_nm?: string | null; ext: string }
 
 /** tauri-specta globals **/
 

@@ -8,6 +8,8 @@ import {useHttp} from "@/components/HttpServerProvider.tsx";
 import {SplitPane} from "@rexxars/react-split-pane";
 import PlayListView from "@/components/PlayListView.tsx";
 import RepeatListView from "@/components/RepeatListView.tsx";
+import {useSubtitlesStore} from "@/stores/subtitlesStore.ts";
+import {useSelectedSubtitleStore} from "@/stores/selectedSubtitleStore.ts";
 
 function formatSeconds(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
@@ -21,8 +23,9 @@ function MovieControlView() {
   const videoRef = useVideoRefStore((state) => state.videoRef);
   const setVideoSrc = useVideoSrcStore((state) => state.setVideoSrc);
   const setSubtitleSrc = useSubtitleSrcStore((state) => state.setSubtitleSrc);
-  // const isPlay = useIsPlayStore((state) => state.isPlay);
-  // const setIsPlay = useIsPlayStore((state) => state.setIsPlay);
+  const subtitles = useSubtitlesStore((state) => state.subtitles);
+  const setSelectedSubtitle = useSelectedSubtitleStore((state) => state.setSelectedSubtitle);
+
   const [isPlay, setIsPlay] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -126,6 +129,11 @@ function MovieControlView() {
     setVolume(vol);
   };
 
+  const onChangeSubtitle = useCallback((path: string) => {
+    const subtitle = subtitles.find((subtitle) => subtitle.path === path);
+    setSelectedSubtitle(subtitle);
+  }, [subtitles]);
+
   useEffect(() => {
     if (!videoRef?.current) return;
     videoRef.current.volume = 0.5;
@@ -166,7 +174,13 @@ function MovieControlView() {
           <div>
             {formatSeconds(currentTime)} / {formatSeconds(duration)}
           </div>
-          <div onClick={() => load()}>load</div>
+          <div>
+            <select onChange={(e) => {onChangeSubtitle(e.target.value)}}>
+              {subtitles.map((subtitle) => (
+                <option key={subtitle.path} value={subtitle.path}>{subtitle.lang || ""}.{subtitle.ext}</option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="center-control">
           <div>
