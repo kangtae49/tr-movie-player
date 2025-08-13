@@ -1,7 +1,7 @@
 import {open} from "@tauri-apps/plugin-dialog"
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome'
-import {faFolder, faForwardStep, faBackwardStep, faCirclePlus, faCircleMinus} from '@fortawesome/free-solid-svg-icons'
-import {useEffect, useState} from "react";
+import {faForwardStep, faBackwardStep, faCirclePlus, faCircleMinus} from '@fortawesome/free-solid-svg-icons'
+import {useEffect} from "react";
 import {DndContext, DragEndEvent, DragStartEvent} from "@dnd-kit/core";
 import SortableContainer from "@/components/SortableContainer.tsx";
 import {arrayMove, horizontalListSortingStrategy, SortableContext} from "@dnd-kit/sortable";
@@ -15,6 +15,7 @@ import {useSubtitleSrcStore} from "@/stores/subtitleSrcStore.ts";
 import {commands} from "@/bindings.ts";
 import {useSubtitlesStore} from "@/stores/subtitlesStore.ts";
 import {useSelectedSubtitleStore} from "@/stores/selectedSubtitleStore.ts";
+import {useSubtitleTypeStore} from "@/stores/subtitleTypeStore.ts";
 
 export type PlayItem = {
   id: string,
@@ -33,6 +34,7 @@ function PlayListView() {
   const setSubtitles = useSubtitlesStore((state) => state.setSubtitles);
   const selectedSubtitle = useSelectedSubtitleStore((state) => state.selectedSubtitle);
   const setSelectedSubtitle = useSelectedSubtitleStore((state) => state.setSelectedSubtitle);
+  const subtitleType = useSubtitleTypeStore((state) => state.subtitleType);
 
   const openPlayList = () => {
     open({
@@ -46,6 +48,7 @@ function PlayListView() {
       if (res == null) {
         return;
       }
+      console.log('hi');
       const items = res.map((path: string) => {
         return {
           id: path,
@@ -117,11 +120,12 @@ function PlayListView() {
 
   useEffect(() => {
     if (selectedPlayItem === undefined) return;
+    console.log('selectedPlayItem:1 ', selectedPlayItem);
     // get movie file
     // get subtitles file
     // load movie
     if (httpServer === undefined) return;
-    if (!videoRef?.current) return;
+    // if (!videoRef?.current) return;
     console.log('selectedPlayItem:', selectedPlayItem);
 
     console.log('MoviePlayerView:', httpServer?.servInfo)
@@ -131,7 +135,14 @@ function PlayListView() {
         const subtitles = res.data;
         setSubtitles(subtitles);
         if (subtitles.length > 0) {
-          setSelectedSubtitle(subtitles[0]);
+          const [lang, ext] = subtitleType.split(".");
+          const findSubtitle = subtitles.find((subtitle) => subtitle.ext == ext && subtitle.lang == lang);
+          if(findSubtitle) {
+            setSelectedSubtitle(findSubtitle);
+          } else {
+            setSelectedSubtitle(subtitles[0]);
+          }
+
         }
       }
     })
@@ -139,7 +150,7 @@ function PlayListView() {
     // httpServer.getSrcBlobUrl(vtt).then(setSubtitleSrc);
 
     // videoRef.current.src = selectedPlayItem.path;
-  }, [selectedPlayItem])
+  }, [selectedPlayItem, httpServer])
 
   return (
     <div className="play-list">

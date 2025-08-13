@@ -1,54 +1,31 @@
-import React, {useCallback, useEffect, useRef} from "react";
+import React, {useEffect, useRef} from "react";
+import {useHttp} from "@/components/HttpServerProvider.tsx";
+import useVideoControl from "@/components/useVideoControl.ts";
 import {useVideoRefStore} from "@/stores/videoRefStore.ts";
 import {useVideoSrcStore} from "@/stores/videoSrcStore.ts";
 import {useSubtitleSrcStore} from "@/stores/subtitleSrcStore.ts";
 import {useSelectedSubtitleStore} from "@/stores/selectedSubtitleStore.ts";
-import {useHttp} from "@/components/HttpServerProvider.tsx";
 import {useCheckedSubtitleStore} from "@/stores/checkedSubtitleStore.ts";
-import {useIsPlayStore} from "@/stores/isPlayStore.ts";
 import {commands} from "@/bindings.ts";
-
-/*
-TODO:
-play/pause
-fullscreen
-subtitle on/off select
-time slider (total time/current time)
-sound slider mute on/off
-speed select
-play list (drag and drop?)
-srt->vtt convert
- */
+import {useScreenTypeStore} from "@/stores/screenTypeStore.ts";
 
 
 function MoviePlayerView() {
   const httpServer = useHttp();
-  const vRef = useRef<HTMLVideoElement>(null);  const videoRef = useVideoRefStore((state) => state.videoRef);
+  const vRef = useRef<HTMLVideoElement>(null);
   const setVideoRef = useVideoRefStore((state) => state.setVideoRef);
   const videoSrc = useVideoSrcStore((state) => state.videoSrc);
   const subtitleSrc = useSubtitleSrcStore((state) => state.subtitleSrc);
   const selectedSubtitle = useSelectedSubtitleStore((state) => state.selectedSubtitle);
   const setSubtitleSrc = useSubtitleSrcStore((state) => state.setSubtitleSrc);
   const checkedSubtitle = useCheckedSubtitleStore((state) => state.checkedSubtitle);
-  const isPlay = useIsPlayStore((state) => state.isPlay);
-  const setIsPlay = useIsPlayStore((state) => state.setIsPlay);
+  const screenType = useScreenTypeStore((state) => state.screenType);
+  const videoControl = useVideoControl();
 
-  const screenTogglePlay = useCallback( async () => {
-    if (httpServer === undefined) return;
-    if (!videoRef?.current) return;
-    if (isPlay) {
-      videoRef.current.pause();
-      setIsPlay(false);
-    } else {
-      await videoRef.current.play();
-      setIsPlay(true);
-    }
-  }, [isPlay, videoRef, httpServer]);
-
-  useEffect(() => {
-    console.log('videoRef:', videoRef);
-    setVideoRef(vRef);
-  }, [videoRef]);
+  const togglePlay = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    await videoControl.togglePlay();
+  }
 
   useEffect(() => {
     if (httpServer === undefined) return;
@@ -68,6 +45,10 @@ function MoviePlayerView() {
 
   }, [selectedSubtitle, httpServer]);
 
+  useEffect(() => {
+    setVideoRef(vRef);
+  }, [vRef]);
+
   console.log('videoSrc:', videoSrc);
   return (
     <div className="movie-pane">
@@ -77,14 +58,11 @@ function MoviePlayerView() {
           src={videoSrc}
           controls={false}
           autoPlay={false}
-          onClick={()=> screenTogglePlay()}
+          onClick={togglePlay}
           style={{
-            // objectFit: 'fill',
-            // objectFit: 'contain',
-            objectFit: 'cover',
+            objectFit: screenType,
           }}
         >
-          {/*{videoSrc && (<source src={videoSrc} type="video/mp4" />)}*/}
           <source src={videoSrc} />
           {(checkedSubtitle && subtitleSrc) && (
             <track src={subtitleSrc}

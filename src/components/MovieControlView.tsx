@@ -2,15 +2,21 @@ import React, {useCallback, useEffect, useState} from "react";
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome'
 import {faCirclePlay, faCirclePause, faMaximize, faVolumeHigh, faVolumeXmark} from '@fortawesome/free-solid-svg-icons'
 import {useVideoRefStore} from "@/stores/videoRefStore.ts";
-import {useVideoSrcStore} from "@/stores/videoSrcStore.ts";
-import {useSubtitleSrcStore} from "@/stores/subtitleSrcStore.ts";
-import {useHttp} from "@/components/HttpServerProvider.tsx";
 import {SplitPane} from "@rexxars/react-split-pane";
 import PlayListView from "@/components/PlayListView.tsx";
 import RepeatListView from "@/components/RepeatListView.tsx";
 import {useSubtitlesStore} from "@/stores/subtitlesStore.ts";
 import {useSelectedSubtitleStore} from "@/stores/selectedSubtitleStore.ts";
 import {useCheckedSubtitleStore} from "@/stores/checkedSubtitleStore.ts";
+import {useIsPlayStore} from "@/stores/isPlayStore.ts";
+import useVideoControl from "@/components/useVideoControl.ts";
+import {useCurrentTimeStore} from "@/stores/currentTimeStore.ts";
+import {useVolumeStore} from "@/stores/volumeStore.ts";
+import {useIsMutedStore} from "@/stores/IsMutedStore.ts";
+import {useDurationStore} from "@/stores/durationStore.ts";
+import {usePlaybackRateStore} from "@/stores/playbackRateStore.ts";
+import {useSubtitleTypeStore} from "@/stores/subtitleTypeStore.ts";
+import {ScreenType, useScreenTypeStore} from "@/stores/screenTypeStore.ts";
 
 function formatSeconds(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
@@ -20,75 +26,40 @@ function formatSeconds(seconds: number): string {
 
 
 function MovieControlView() {
-  const httpServer = useHttp();
   const videoRef = useVideoRefStore((state) => state.videoRef);
-  const setVideoSrc = useVideoSrcStore((state) => state.setVideoSrc);
-  const setSubtitleSrc = useSubtitleSrcStore((state) => state.setSubtitleSrc);
   const subtitles = useSubtitlesStore((state) => state.subtitles);
   const selectedSubtitle = useSelectedSubtitleStore((state) => state.selectedSubtitle);
   const setSelectedSubtitle = useSelectedSubtitleStore((state) => state.setSelectedSubtitle);
   const checkedSubtitle = useCheckedSubtitleStore((state) => state.checkedSubtitle);
   const setCheckedSubtitle = useCheckedSubtitleStore((state) => state.setCheckedSubtitle);
+  const setSubtitleType = useSubtitleTypeStore((state) => state.setSubtitleType);
+  const isPlay = useIsPlayStore((state) => state.isPlay);
+  const setIsPlay = useIsPlayStore((state) => state.setIsPlay);
+  const currentTime = useCurrentTimeStore((state) => state.currentTime);
+  const setCurrentTime = useCurrentTimeStore((state) => state.setCurrentTime);
+  const volume = useVolumeStore((state) => state.volume);
+  const setVolume = useVolumeStore((state) => state.setVolume);
+  const isMuted = useIsMutedStore((state) => state.isMuted);
+  const setIsMuted = useIsMutedStore((state) => state.setIsMuted);
+  const duration = useDurationStore((state) => state.duration);
+  const setDuration = useDurationStore((state) => state.setDuration);
+  const playbackRate = usePlaybackRateStore((state) => state.playbackRate);
+  const setPlaybackRate = usePlaybackRateStore((state) => state.setPlaybackRate);
+  const screenType = useScreenTypeStore((state) => state.screenType);
+  const setScreenType = useScreenTypeStore((state) => state.setScreenType);
 
-  const [isPlay, setIsPlay] = useState(false);
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [volume, setVolume] = useState(0.5);
-  const [isMuted, setIsMuted] = useState(false);
-  const [playbackRate, setPlaybackRate] = useState(1);
   const [isResizing, setIsResizing] = useState(false);
 
-  const clickFullScreen = async () => {
-    if (document.fullscreenElement == null){
-      await videoRef?.current?.requestFullscreen();
-      console.log('isFullScreen', true, document.fullscreenElement);
-    } else {
-      await document.exitFullscreen();
-      console.log('isFullScreen', false, document.fullscreenElement);
-    }
-  }
+  const videoControl = useVideoControl();
 
   const keyDownHandler = async (e: KeyboardEvent) => {
     if (e.key === " ") {
 
     } else if (e.key === "F11") {
       e.preventDefault();
-      await clickFullScreen();
+      await videoControl.toggleFullScreen();
     }
-
   };
-
-
-
-  const load = () => {
-    if (httpServer === undefined) return;
-
-    console.log('MoviePlayerView:', httpServer?.servInfo)
-    const mp4 = 'C:/Users/kkt/Downloads/Severus Snape and the Marauders ｜ Harry Potter Prequel [EmsntGGjxiw].mp4';
-    const vtt = 'C:/Users/kkt/Downloads/Severus Snape and the Marauders ｜ Harry Potter Prequel [EmsntGGjxiw].ko.vtt';
-    setVideoSrc(httpServer.getSrc(mp4));
-    httpServer.getSrcBlobUrl(vtt).then(setSubtitleSrc);
-
-  }
-  const togglePlay = useCallback( async () => {
-    if (httpServer === undefined) return;
-    if (!videoRef?.current) return;
-    if (isPlay) {
-      videoRef.current.pause();
-      setIsPlay(false);
-    } else {
-      await videoRef.current.play();
-      setIsPlay(true);
-    }
-  }, [isPlay, videoRef, httpServer]);
-
-  const toggleMuted = useCallback( async () => {
-    if (httpServer === undefined) return;
-    if (!videoRef?.current) return;
-    const newMuted = !videoRef.current.muted;
-    videoRef.current.muted = newMuted;
-    setIsMuted(newMuted);
-  }, [videoRef, httpServer])
 
   const onPlay = () => {
     setIsPlay(true);
@@ -118,24 +89,19 @@ function MovieControlView() {
   }
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!videoRef?.current) return;
     const time = Number(e.target.value);
-    videoRef.current.currentTime = time;
-    setCurrentTime(time);
+    videoControl.changeCurrentTime(time);
   };
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!videoRef?.current) return;
     const vol = Number(e.target.value);
-    if (videoRef.current) {
-      videoRef.current.volume = vol;
-    }
-    setVolume(vol);
+    videoControl.changeVolume(vol);
   };
 
   const onChangeSubtitle = useCallback((path: string) => {
     const subtitle = subtitles.find((subtitle) => subtitle.path === path);
     setSelectedSubtitle(subtitle);
+    setSubtitleType(`${subtitle?.lang || ""}.${subtitle?.ext || ""}`);
   }, [subtitles]);
 
   useEffect(() => {
@@ -196,13 +162,34 @@ function MovieControlView() {
         </div>
         <div className="center-control">
           <div>
-            <Icon className="large" icon={isPlay ? faCirclePause : faCirclePlay} onClick={() => togglePlay()}/>
+            <Icon className="large" icon={isPlay ? faCirclePause : faCirclePlay} onClick={() => videoControl.togglePlay()}/>
           </div>
+          {playbackRate != 1 && (
           <div>
-            {playbackRate}
+            x{playbackRate}
           </div>
+          )}
         </div>
         <div className="right-control">
+          <div>
+            <select value={playbackRate} onChange={(e)=>videoControl.changePlaybackRate(Number(e.target.value))}>
+              <option value="0.25">x0.25</option>
+              <option value="0.5">x0.5</option>
+              <option value="0.75">x0.75</option>
+              <option value="1">x1</option>
+              <option value="1.25">x1.25</option>
+              <option value="1.5">x1.5</option>
+              <option value="1.75">x1.75</option>
+              <option value="2">x2</option>
+            </select>
+          </div>
+          <div>
+            <select value={screenType} onChange={(e)=>setScreenType(e.target.value as ScreenType)}>
+              <option value="cover">cover</option>
+              <option value="fit">fit</option>
+              <option value="contain">contain</option>
+            </select>
+          </div>
           <div>
             <input
               type="range"
@@ -214,10 +201,10 @@ function MovieControlView() {
             />
           </div>
           <div>
-            <Icon icon={isMuted ? faVolumeXmark : faVolumeHigh} onClick={() => toggleMuted()} />
+            <Icon icon={isMuted ? faVolumeXmark : faVolumeHigh} onClick={() => videoControl.toggleMute()} />
           </div>
           <div>
-            <Icon icon={faMaximize} onClick={() => clickFullScreen()} />
+            <Icon icon={faMaximize} onClick={() => videoControl.toggleFullScreen()} />
           </div>
         </div>
       </div>
