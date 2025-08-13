@@ -130,6 +130,9 @@ function PlayListView() {
       if(res.status === 'ok') {
         const subtitles = res.data;
         setSubtitles(subtitles);
+        if (subtitles.length > 0) {
+          setSelectedSubtitle(subtitles[0]);
+        }
       }
     })
 

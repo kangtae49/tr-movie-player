@@ -36,6 +36,14 @@ async getSubtitleList(movieFilepath: string) : Promise<Result<Subtitle[], ApiErr
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+async convertSrtToVtt(movieFilepath: string) : Promise<Result<string, ApiError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("convert_srt_to_vtt", { movieFilepath }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 

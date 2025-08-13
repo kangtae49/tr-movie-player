@@ -58,6 +58,14 @@ async fn get_subtitle_list(movie_filepath: String) -> ApiResult<Vec<Subtitle>> {
     media::get_subtitle_list(movie_filepath)
 }
 
+#[tauri::command]
+#[specta::specta]
+async fn convert_srt_to_vtt(movie_filepath: String) -> ApiResult<String> {
+    media::srt_to_vtt(movie_filepath)
+}
+
+
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub async fn run() {
     let builder = Builder::<tauri::Wry>::new().commands(collect_commands![
@@ -65,6 +73,7 @@ pub async fn run() {
         run_http_server,
         shutdown_http_server,
         get_subtitle_list,
+        convert_srt_to_vtt,
     ]);
 
     #[cfg(debug_assertions)]

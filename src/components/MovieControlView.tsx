@@ -10,6 +10,7 @@ import PlayListView from "@/components/PlayListView.tsx";
 import RepeatListView from "@/components/RepeatListView.tsx";
 import {useSubtitlesStore} from "@/stores/subtitlesStore.ts";
 import {useSelectedSubtitleStore} from "@/stores/selectedSubtitleStore.ts";
+import {useCheckedSubtitleStore} from "@/stores/checkedSubtitleStore.ts";
 
 function formatSeconds(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
@@ -24,7 +25,10 @@ function MovieControlView() {
   const setVideoSrc = useVideoSrcStore((state) => state.setVideoSrc);
   const setSubtitleSrc = useSubtitleSrcStore((state) => state.setSubtitleSrc);
   const subtitles = useSubtitlesStore((state) => state.subtitles);
+  const selectedSubtitle = useSelectedSubtitleStore((state) => state.selectedSubtitle);
   const setSelectedSubtitle = useSelectedSubtitleStore((state) => state.setSelectedSubtitle);
+  const checkedSubtitle = useCheckedSubtitleStore((state) => state.checkedSubtitle);
+  const setCheckedSubtitle = useCheckedSubtitleStore((state) => state.setCheckedSubtitle);
 
   const [isPlay, setIsPlay] = useState(false);
   const [duration, setDuration] = useState(0);
@@ -171,11 +175,19 @@ function MovieControlView() {
       </div>
       <div className="etc-control">
         <div className="left-control">
-          <div>
+          <div className="current-time">
             {formatSeconds(currentTime)} / {formatSeconds(duration)}
           </div>
-          <div>
-            <select onChange={(e) => {onChangeSubtitle(e.target.value)}}>
+          <div className="checked-subtitle">
+            <input type="checkbox"
+                   checked={checkedSubtitle}
+                   onChange={(e) => {setCheckedSubtitle(e.target.checked)}}
+            />
+          </div>
+          <div className="select-subtitle">
+            <select
+              value={selectedSubtitle?.path || ""}
+              onChange={(e) => {onChangeSubtitle(e.target.value)}}>
               {subtitles.map((subtitle) => (
                 <option key={subtitle.path} value={subtitle.path}>{subtitle.lang || ""}.{subtitle.ext}</option>
               ))}

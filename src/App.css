@@ -30,7 +30,7 @@ input, select {
   background: transparent;
   border: 1px solid #ccc;
   padding: 3px;
-  height: 27px;
+  /*height: 27px;*/
 }
 div, input {
   box-sizing: border-box;
@@ -79,6 +79,8 @@ div, input {
   flex: 0 0 300px;
   display: flex;
 }
+
+
 .etc-control .center-control {
   flex: 1;
   display: flex;
@@ -92,6 +94,9 @@ div, input {
   justify-content: flex-end;
 }
 
+.left-control .current-time {flex: 0 0 95px;}
+.left-control .checked-subtitle {flex: 0 0 30px;}
+.left-control .select-subtitle {flex: 0 0 100px;}
 
 .video {
   width: 100%;

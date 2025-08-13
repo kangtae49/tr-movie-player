@@ -1,9 +1,12 @@
-import React, {useEffect, useRef} from "react";
+import React, {useCallback, useEffect, useRef} from "react";
 import {useVideoRefStore} from "@/stores/videoRefStore.ts";
 import {useVideoSrcStore} from "@/stores/videoSrcStore.ts";
 import {useSubtitleSrcStore} from "@/stores/subtitleSrcStore.ts";
 import {useSelectedSubtitleStore} from "@/stores/selectedSubtitleStore.ts";
 import {useHttp} from "@/components/HttpServerProvider.tsx";
+import {useCheckedSubtitleStore} from "@/stores/checkedSubtitleStore.ts";
+import {useIsPlayStore} from "@/stores/isPlayStore.ts";
+import {commands} from "@/bindings.ts";
 
 /*
 TODO:
@@ -26,6 +29,21 @@ function MoviePlayerView() {
   const subtitleSrc = useSubtitleSrcStore((state) => state.subtitleSrc);
   const selectedSubtitle = useSelectedSubtitleStore((state) => state.selectedSubtitle);
   const setSubtitleSrc = useSubtitleSrcStore((state) => state.setSubtitleSrc);
+  const checkedSubtitle = useCheckedSubtitleStore((state) => state.checkedSubtitle);
+  const isPlay = useIsPlayStore((state) => state.isPlay);
+  const setIsPlay = useIsPlayStore((state) => state.setIsPlay);
+
+  const screenTogglePlay = useCallback( async () => {
+    if (httpServer === undefined) return;
+    if (!videoRef?.current) return;
+    if (isPlay) {
+      videoRef.current.pause();
+      setIsPlay(false);
+    } else {
+      await videoRef.current.play();
+      setIsPlay(true);
+    }
+  }, [isPlay, videoRef, httpServer]);
 
   useEffect(() => {
     console.log('videoRef:', videoRef);
@@ -35,7 +53,18 @@ function MoviePlayerView() {
   useEffect(() => {
     if (httpServer === undefined) return;
     if (selectedSubtitle === undefined) return;
-    httpServer.getSrcBlobUrl(selectedSubtitle.path).then(setSubtitleSrc);
+    if (selectedSubtitle.ext == 'vtt') {
+      httpServer.getSrcBlobUrl(selectedSubtitle.path).then(setSubtitleSrc);
+    } else if (selectedSubtitle.ext == 'srt') {
+      commands.convertSrtToVtt(selectedSubtitle.path).then(res => {
+        if(res.status == 'ok') {
+          const vtt = res.data;
+          const blob = new Blob([vtt], { type: "text/plain" });
+          const url = URL.createObjectURL(blob);
+          setSubtitleSrc(url);
+        }
+      })
+    }
 
   }, [selectedSubtitle, httpServer]);
 
@@ -48,6 +77,7 @@ function MoviePlayerView() {
           src={videoSrc}
           controls={false}
           autoPlay={false}
+          onClick={()=> screenTogglePlay()}
           style={{
             // objectFit: 'fill',
             // objectFit: 'contain',
@@ -56,7 +86,7 @@ function MoviePlayerView() {
         >
           {/*{videoSrc && (<source src={videoSrc} type="video/mp4" />)}*/}
           <source src={videoSrc} />
-          {subtitleSrc && (
+          {(checkedSubtitle && subtitleSrc) && (
             <track src={subtitleSrc}
                    kind="subtitles"
                    srcLang="ko"

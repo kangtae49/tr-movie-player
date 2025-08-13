@@ -245,6 +245,32 @@ pub fn get_subtitle_list(movie_filepath: String) -> ApiResult<Vec<Subtitle>> {
     Ok(files)
 }
 
+
+pub fn srt_to_vtt(srt_path: String) -> ApiResult<String> {
+    let content = std::fs::read_to_string(srt_path)?;
+
+    let mut vtt_content = String::from("WEBVTT\n\n");
+
+    for line in content.lines() {
+        if line.contains("-->") {
+            let converted = line.replace(',', ".");
+            vtt_content.push_str(&converted);
+            vtt_content.push('\n');
+        }
+        // 숫자 줄은 건너뜀
+        else if line.trim().parse::<u32>().is_ok() {
+            continue;
+        }
+        else {
+            vtt_content.push_str(line);
+            vtt_content.push('\n');
+        }
+    }
+
+    Ok(vtt_content)
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
