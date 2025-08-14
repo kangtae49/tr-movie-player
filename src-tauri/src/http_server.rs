@@ -110,6 +110,7 @@ impl HttpServer {
 
             let serv_dir = ServeDir::new(resource);
             let app = Router::new()
+                .route("/health", get(get_health))
                 .route("/get_file", get(get_file))
                 .route("/serv_info/{id}", get(get_serv_info)).with_state(app_state.clone())
                 .route("/emit_jstr", post(post_emit_jstr)).with_state(app_state.clone())
@@ -148,7 +149,9 @@ impl HttpServer {
     }
 
 }
-
+async fn get_health() -> impl IntoResponse {
+    Json({}).into_response()
+}
 
 
 async fn get_serv_info(
