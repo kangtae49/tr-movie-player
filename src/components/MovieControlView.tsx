@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from "react";
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome'
-import {faCirclePlay, faCirclePause, faMaximize, faVolumeHigh, faVolumeXmark} from '@fortawesome/free-solid-svg-icons'
+import {faCirclePlay, faCirclePause, faMaximize, faVolumeHigh, faVolumeXmark, faRepeat} from '@fortawesome/free-solid-svg-icons'
 import {useVideoRefStore} from "@/stores/videoRefStore.ts";
 import {SplitPane} from "@rexxars/react-split-pane";
 import PlayListView from "@/components/PlayListView.tsx";
@@ -12,13 +12,27 @@ import {useIsPlayStore} from "@/stores/isPlayStore.ts";
 import useVideoControl from "@/components/useVideoControl.ts";
 import {useCurrentTimeStore} from "@/stores/currentTimeStore.ts";
 import {useVolumeStore} from "@/stores/volumeStore.ts";
-import {useIsMutedStore} from "@/stores/IsMutedStore.ts";
+import {useIsMutedStore} from "@/stores/isMutedStore.ts";
 import {useDurationStore} from "@/stores/durationStore.ts";
 import {usePlaybackRateStore} from "@/stores/playbackRateStore.ts";
 import {useSubtitleTypeStore} from "@/stores/subtitleTypeStore.ts";
 import {ScreenType, useScreenTypeStore} from "@/stores/screenTypeStore.ts";
 import {formatSeconds} from "@/components/utils.ts";
+import {useIsRepeatStore} from "@/stores/isRepeatStore.ts";
+import {useStartTimeStore} from "@/stores/startTimeStore.ts";
+import {useEndTimeStore} from "@/stores/endTimeStore.ts";
 
+const getRepeatClassName = (isRepeat: boolean, startTime: number, endTime: number) => {
+  if (isRepeat) {
+    if (endTime - startTime >= 1) {
+      return ""
+    } else {
+      return "inactive"
+    }
+  } else {
+    return "off"
+  }
+}
 
 function MovieControlView() {
   const videoRef = useVideoRefStore((state) => state.videoRef);
@@ -42,6 +56,10 @@ function MovieControlView() {
   const setPlaybackRate = usePlaybackRateStore((state) => state.setPlaybackRate);
   const screenType = useScreenTypeStore((state) => state.screenType);
   const setScreenType = useScreenTypeStore((state) => state.setScreenType);
+  const isRepeat = useIsRepeatStore((state) => state.isRepeat);
+  const setIsRepeat = useIsRepeatStore((state) => state.setIsRepeat);
+  const startTime = useStartTimeStore((state) => state.startTime);
+  const endTime = useEndTimeStore((state) => state.endTime);
 
   const [isResizing, setIsResizing] = useState(false);
 
@@ -156,6 +174,9 @@ function MovieControlView() {
           </div>
         </div>
         <div className="center-control">
+          <div className="repeat">
+            <Icon icon={faRepeat} className={getRepeatClassName(isRepeat, startTime, endTime)} onClick={()=> setIsRepeat(!isRepeat)} />
+          </div>
           <div>
             <Icon className="large" icon={isPlay ? faCirclePause : faCirclePlay} onClick={() => videoControl.togglePlay()}/>
           </div>

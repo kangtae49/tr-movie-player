@@ -2,6 +2,9 @@
 :root {
   --selected-color: #f4a261;
   --selected-color2: #bfd2e3;
+  --disabled-color: #bfd2e3;
+  --disabled-color2: #ffffff;
+  --selected-item-color: #efefef;
   --hover-color: #bd623c;
   --scale: scale(1.3);
 }
@@ -140,7 +143,7 @@ video {
 }
 
 .item.selected {
-  background-color: var(--selected-color2);
+  background-color: var(--selected-item-color);
 }
 
 .item .item-path  {
@@ -162,14 +165,16 @@ video {
 .fa-circle-pause:hover { transform: var(--scale); color: var(--hover-color); }
 .fa-maximize { width: 30px; height: 30px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
 .fa-maximize:hover { transform: var(--scale); color: var(--hover-color); }
-.fa-volume-high { width: 30px; height: 30px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
-.fa-volume-high:hover { transform: var(--scale); color: var(--hover-color); }
-.fa-volume-xmark { width: 30px; height: 30px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
-.fa-volume-xmark:hover { transform: var(--scale); color: var(--hover-color); }
 
+.fa-volume-high { width: 20px; height: 20px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-volume-high:hover { transform: var(--scale); color: var(--hover-color); }
+.fa-volume-xmark { width: 20px; height: 20px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-volume-xmark:hover { transform: var(--scale); color: var(--hover-color); }
 .fa-circle-play.middle { width: 20px; height: 20px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-circle-play.middle.inactive { color: var(--disabled-color2); }
 .fa-circle-play.middle:hover { transform: var(--scale); color: var(--hover-color); }
 .fa-circle-plus { width: 20px; height: 20px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-circle-plus.inactive {color: var(--disabled-color);}
 .fa-circle-plus:hover { transform: var(--scale); color: var(--hover-color); }
 .fa-circle-minus { width: 20px; height: 20px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
 .fa-circle-minus:hover { transform: var(--scale); color: var(--hover-color); }
@@ -184,3 +189,8 @@ video {
 .fa-circle-play.small:hover { transform: var(--scale); color: var(--hover-color); }
 .fa-land-mine-on { color: var(--selected-color); margin-right: 5px; cursor: pointer; }
 .fa-land-mine-on:hover { transform: var(--scale); color: var(--hover-color); }
+
+.fa-repeat { color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-repeat.inactive { color: var(--disabled-color); }
+.fa-repeat.off { color: var(--disabled-color2); }
+.fa-repeat:hover {transform: var(--scale); color: var(--hover-color);}

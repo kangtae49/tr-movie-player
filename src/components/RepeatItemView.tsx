@@ -1,19 +1,31 @@
-import {PlayItem} from "@/components/PlayListView.tsx";
 import {RepeatItem} from "@/bindings.ts";
 import {useSelectedRepeatItemStore} from "@/stores/selectedRepeatItemStore.ts";
 import {useSortable} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
 import {FontAwesomeIcon as Icon} from "@fortawesome/react-fontawesome";
-import {faCirclePlay, faCircleXmark} from "@fortawesome/free-solid-svg-icons";
+import {faCircleXmark, faRepeat} from "@fortawesome/free-solid-svg-icons";
+import {useStartTimeStore} from "@/stores/startTimeStore.ts";
+import {useEndTimeStore} from "@/stores/endTimeStore.ts";
 
 type Props = {
   repeatItem: RepeatItem
+  clickRepeatItem: (repeatItem: RepeatItem) => void
   removeRepeatItem: (repeatItem: RepeatItem) => void
 }
 
-function RepeatItemView({repeatItem, removeRepeatItem}: Props) {
+const getRepeatClassName = (startTime: number, endTime: number) => {
+  if (endTime - startTime >= 1.0) {
+    return ""
+  } else {
+    return "inactive"
+  }
+}
+
+function RepeatItemView({repeatItem, clickRepeatItem, removeRepeatItem}: Props) {
   const selectedRepeatItem = useSelectedRepeatItemStore((state) => state.selectedRepeatItem);
   const setSelectedRepeatItem = useSelectedRepeatItemStore((state) => state.setSelectedRepeatItem);
+  const startTime = useStartTimeStore((state) => state.startTime);
+  const endTime = useEndTimeStore((state) => state.endTime);
 
   const sortable = useSortable({
     id: repeatItem.id,
@@ -35,7 +47,9 @@ function RepeatItemView({repeatItem, removeRepeatItem}: Props) {
          }}
          style={style}
     >
-      <div className="item-icon" onClick={() => setSelectedRepeatItem(repeatItem)}><Icon className="small" icon={faCirclePlay} /></div>
+      <div className="item-icon" onClick={() => clickRepeatItem(repeatItem)}>
+        <Icon className={getRepeatClassName(repeatItem.start, repeatItem.end)} icon={faRepeat} />
+      </div>
       <div className="item-start"
            {...mergedProps}
       >

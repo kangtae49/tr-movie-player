@@ -239,7 +239,6 @@ pub fn get_subtitle_list(movie_filepath: String) -> ApiResult<Vec<Subtitle>> {
             files.push(subtitle.clone());
         }
     }
-    println!("{:?}", files);
     Ok(files)
 }
 
@@ -255,7 +254,6 @@ pub fn srt_to_vtt(srt_path: String) -> ApiResult<String> {
             vtt_content.push_str(&converted);
             vtt_content.push('\n');
         }
-        // 숫자 줄은 건너뜀
         else if line.trim().parse::<u32>().is_ok() {
             continue;
         }

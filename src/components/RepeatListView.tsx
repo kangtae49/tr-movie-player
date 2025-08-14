@@ -1,5 +1,5 @@
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome'
-import {faCirclePlus, faLandMineOn, faCirclePlay} from "@fortawesome/free-solid-svg-icons";
+import {faCirclePlus, faLandMineOn, faCirclePlay, faRepeat} from "@fortawesome/free-solid-svg-icons";
 import {useRepeatItemsStore} from "@/stores/repeatItemsStore.ts";
 import {useSelectedRepeatItemStore} from "@/stores/selectedRepeatItemStore.ts";
 import {DndContext, DragEndEvent, DragStartEvent} from "@dnd-kit/core";
@@ -13,6 +13,19 @@ import useVideoControl from "@/components/useVideoControl.ts";
 import {useVideoRefStore} from "@/stores/videoRefStore.ts";
 import {useSelectedPlayItemStore} from "@/stores/selectedPlayItemStore.ts";
 import {changeExtension} from "@/components/utils.ts";
+import {useStartTimeStore} from "@/stores/startTimeStore.ts";
+import {useEndTimeStore} from "@/stores/endTimeStore.ts";
+import {useIsRepeatStore} from "@/stores/isRepeatStore.ts";
+import {useRepeatDescStore} from "@/stores/repeatDescStore.ts";
+
+
+const getRepeatClassName = (startTime: number, endTime: number) => {
+  if (endTime - startTime >= 1) {
+    return ""
+  } else {
+    return "inactive"
+  }
+}
 
 function RepeatListView() {
   const repeatItems = useRepeatItemsStore((state) => state.repeatItems);
@@ -23,9 +36,13 @@ function RepeatListView() {
   const setCurrentTime = useCurrentTimeStore((state) => state.setCurrentTime);
   const videoRef = useVideoRefStore((state) => state.videoRef);
   const selectedPlayItem = useSelectedPlayItemStore((state) => state.selectedPlayItem);
-  const [startTime, setStartTime] = useState(0);
-  const [endTime, setEndTime] = useState(0);
-  const [repeatDesc, setRepeatDesc] = useState('');
+  const startTime = useStartTimeStore((state) => state.startTime);
+  const setStartTime = useStartTimeStore((state) => state.setStartTime);
+  const endTime = useEndTimeStore((state) => state.endTime);
+  const setEndTime = useEndTimeStore((state) => state.setEndTime);
+  const setIsRepeat = useIsRepeatStore((state) => state.setIsRepeat);
+  const repeatDesc = useRepeatDescStore((state) => state.repeatDesc);
+  const setRepeatDesc = useRepeatDescStore((state) => state.setRepeatDesc);
 
   const videoControl = useVideoControl();
 
@@ -51,10 +68,21 @@ function RepeatListView() {
     }
   }
 
+  const clickRepeatItem = (repeatItem: RepeatItem) => {
+    if (repeatItems === undefined) return;
+    if (selectedPlayItem == undefined) return;
+    setSelectedRepeatItem(repeatItem);
+    setStartTime(repeatItem.start);
+    setEndTime(repeatItem.end);
+    setRepeatDesc(repeatItem.desc || '');
+  }
+
   const clickAddRepeatItem = () => {
     if (repeatItems === undefined) return;
     if (selectedPlayItem == undefined) return;
-
+    if (getRepeatClassName(startTime, endTime) == "inactive") {
+      return;
+    }
     const id = `${startTime}-${endTime}`;
     const start = startTime;
     const end = endTime;
@@ -171,6 +199,14 @@ function RepeatListView() {
 
   }, [selectedPlayItem]);
 
+  useEffect(() => {
+    if (selectedPlayItem === undefined) return;
+    videoControl.changeCurrentTime(startTime);
+    if (getRepeatClassName(startTime, endTime) !== "inactive") {
+      setIsRepeat(true);
+      videoControl.play().then();
+    }
+  }, [selectedRepeatItem, startTime]);
 
   return (
     <div className="repeat-list">
@@ -191,8 +227,8 @@ function RepeatListView() {
         <div className="desc">
           <input type="text" value={repeatDesc} onChange={(e) => setRepeatDesc(e.target.value)}/>
         </div>
-        <Icon icon={faCirclePlay} className="middle"/>
-        <Icon icon={faCirclePlus}  onClick={()=> clickAddRepeatItem()}/>
+        <Icon icon={faRepeat} className={`${getRepeatClassName(startTime, endTime)}`} onClick={() => clickRepeatItem()} />
+        <Icon icon={faCirclePlus} className={`middle ${getRepeatClassName(startTime, endTime)}`} onClick={()=> clickAddRepeatItem()}/>
       </div>
       <DndContext
         onDragStart={handleDragStart}
@@ -202,7 +238,7 @@ function RepeatListView() {
             <SortableContext items={repeatItems} strategy={horizontalListSortingStrategy}>
               {(repeatItems).map((repeatItem, _index: number) => {
                 return (
-                  <RepeatItemView key={repeatItem.id} repeatItem={repeatItem} removeRepeatItem={removeRepeatItem} />
+                  <RepeatItemView key={repeatItem.id} repeatItem={repeatItem} clickRepeatItem={clickRepeatItem} removeRepeatItem={removeRepeatItem} />
                 )
               })}
             </SortableContext>

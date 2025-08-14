@@ -1,7 +1,7 @@
 import {useVideoRefStore} from "@/stores/videoRefStore.ts";
 import {useCallback} from "react";
 import {useIsPlayStore} from "@/stores/isPlayStore.ts";
-import {useIsMutedStore} from "@/stores/IsMutedStore.ts";
+import {useIsMutedStore} from "@/stores/isMutedStore.ts";
 import {useVolumeStore} from "@/stores/volumeStore.ts";
 import {useCurrentTimeStore} from "@/stores/currentTimeStore.ts";
 import {usePlaybackRateStore} from "@/stores/playbackRateStore.ts";
@@ -14,6 +14,9 @@ import {useSubtitlesStore} from "@/stores/subtitlesStore.ts";
 import {useSubtitleTypeStore} from "@/stores/subtitleTypeStore.ts";
 import {usePlayItemsStore} from "@/stores/playItemsStore.ts";
 import {PlayItem} from "@/components/PlayListView.tsx";
+import {useIsRepeatStore} from "@/stores/isRepeatStore.ts";
+import {useStartTimeStore} from "@/stores/startTimeStore.ts";
+import {useEndTimeStore} from "@/stores/endTimeStore.ts";
 
 interface UseVideoControls {
   togglePlay: () => Promise<void>;
@@ -48,6 +51,12 @@ function useVideoControl(): UseVideoControls {
   const setSubtitles = useSubtitlesStore((state) => state.setSubtitles);
   const setSelectedPlayItem = useSelectedPlayItemStore((state) => state.setSelectedPlayItem);
   const setPlayItems = usePlayItemsStore((state) => state.setPlayItems);
+  const isRepeat = useIsRepeatStore((state) => state.isRepeat);
+  const startTime = useStartTimeStore((state) => state.startTime);
+  const setStartTime = useStartTimeStore((state) => state.setStartTime);
+  const endTime = useEndTimeStore((state) => state.endTime);
+  const setEndTime = useEndTimeStore((state) => state.setEndTime);
+
 
   const togglePlay = useCallback( async () => {
     console.log('togglePlay', isPlay);
@@ -172,6 +181,8 @@ function useVideoControl(): UseVideoControls {
     }
 
   }, [playItems]);
+
+
 
   return {
     togglePlay,
