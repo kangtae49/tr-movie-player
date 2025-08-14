@@ -1,24 +1,112 @@
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome'
-import {faCirclePlus} from "@fortawesome/free-solid-svg-icons";
+import {faCirclePlus, faLandMineOn, faCirclePlay} from "@fortawesome/free-solid-svg-icons";
 import {useRepeatItemsStore} from "@/stores/repeatItemsStore.ts";
 import {useSelectedRepeatItemStore} from "@/stores/selectedRepeatItemStore.ts";
 import {DndContext, DragEndEvent, DragStartEvent} from "@dnd-kit/core";
 import {arrayMove, horizontalListSortingStrategy, SortableContext} from "@dnd-kit/sortable";
-import {RepeatItem} from "@/bindings.ts";
+import {commands, RepeatItem} from "@/bindings.ts";
 import SortableContainer from "@/components/SortableContainer.tsx";
-import PlayItemView from "@/components/PlayItemView.tsx";
 import RepeatItemView from "@/components/RepeatItemView.tsx";
-import {PlayItem} from "@/components/PlayListView.tsx";
+import {useEffect, useState} from "react";
+import {useCurrentTimeStore} from "@/stores/currentTimeStore.ts";
+import useVideoControl from "@/components/useVideoControl.ts";
+import {useVideoRefStore} from "@/stores/videoRefStore.ts";
+import {useSelectedPlayItemStore} from "@/stores/selectedPlayItemStore.ts";
+import {changeExtension} from "@/components/utils.ts";
 
 function RepeatListView() {
   const repeatItems = useRepeatItemsStore((state) => state.repeatItems);
   const setRepeatItems = useRepeatItemsStore((state) => state.setRepeatItems);
   const selectedRepeatItem = useSelectedRepeatItemStore((state) => state.selectedRepeatItem);
   const setSelectedRepeatItem = useSelectedRepeatItemStore((state) => state.setSelectedRepeatItem);
+  const currentTime = useCurrentTimeStore((state) => state.currentTime);
+  const setCurrentTime = useCurrentTimeStore((state) => state.setCurrentTime);
+  const videoRef = useVideoRefStore((state) => state.videoRef);
+  const selectedPlayItem = useSelectedPlayItemStore((state) => state.selectedPlayItem);
+  const [startTime, setStartTime] = useState(0);
+  const [endTime, setEndTime] = useState(0);
+  const [repeatDesc, setRepeatDesc] = useState('');
+
+  const videoControl = useVideoControl();
+
+  const clickStartGetCurrentTime = () => {
+    setStartTime(currentTime);
+  }
+
+  const clickEndGetCurrentTime = () => {
+    setEndTime(currentTime);
+  }
+
+  const clickGetCurrentSubtitle = () => {
+    if (!videoRef?.current) {
+      return;
+    }
+    const tracks = videoRef.current.textTracks;
+    if (tracks?.length > 0) {
+      const activeCues = tracks[0].activeCues;
+      if (activeCues != null && activeCues.length > 0) {
+        const cue = activeCues[0] as VTTCue;
+        setRepeatDesc(cue.text);
+      }
+    }
+  }
+
+  const clickAddRepeatItem = () => {
+    if (repeatItems === undefined) return;
+    if (selectedPlayItem == undefined) return;
+
+    const id = `${startTime}-${endTime}`;
+    const start = startTime;
+    const end = endTime;
+    const desc = repeatDesc;
+    const items = [...repeatItems, {id, start, end, desc}];
+    const uniqueList = Array.from(
+      new Map(items.map(item => [item.id, item])).values()
+    );
+    setRepeatItems(uniqueList);
+    saveRepeatJson(uniqueList);
+  }
+
+  const onChangeStartTime = (value: string) => {
+    const v = Number(value);
+    if (!isNaN(v)) {
+      setStartTime(v);
+      videoControl.changeCurrentTime(v);
+    }
+  }
+  const onChangeEndTime = (value: string) => {
+    const v = Number(value);
+    if (!isNaN(v)) {
+      setEndTime(v);
+      videoControl.changeCurrentTime(v);
+    }
+  }
+
 
   const removeRepeatItem = (repeatItem: RepeatItem) => {
     if (repeatItems === undefined) return;
-    setRepeatItems(repeatItems.filter((item: RepeatItem) => item.id !== repeatItem.id));
+    if (selectedPlayItem == undefined) return;
+    const new_items = repeatItems.filter((item: RepeatItem) => item.id !== repeatItem.id);
+    setRepeatItems(new_items);
+    saveRepeatJson(new_items);
+  }
+
+  const saveRepeatJson = (items: RepeatItem[]) => {
+    if (repeatItems === undefined) return;
+    if (selectedPlayItem == undefined) return;
+    const jsonPath = changeExtension(selectedPlayItem.path, "json");
+    commands.writeRepeatJson(
+      jsonPath,
+      {
+        items,
+      }
+    ).then(res => {
+      if (res.status === 'ok') {
+        console.log('writeRepeatJson success');
+      } else {
+        console.log('writeRepeatJson fail');
+      }
+    })
   }
 
   function getRepeatItemId (repeatItem: RepeatItem) {
@@ -68,10 +156,43 @@ function RepeatListView() {
     }
   }
 
+  useEffect(() => {
+    if (selectedPlayItem === undefined) return;
+
+    const jsonPath = changeExtension(selectedPlayItem.path, "json");
+    commands.readRepeatJson(jsonPath).then(res => {
+      if (res.status === 'ok') {
+        const items = res.data.items;
+        setRepeatItems(items);
+      } else {
+        setRepeatItems([]);
+      }
+    })
+
+  }, [selectedPlayItem]);
+
+
   return (
     <div className="repeat-list">
       <div className="list-header">
-        <Icon icon={faCirclePlus} />
+        <Icon icon={faLandMineOn} onClick={()=>clickStartGetCurrentTime()} />
+        <div className="sec">
+          <input type="number" value={startTime} step="any"
+                 onFocus={(e) => onChangeStartTime(e.target.value)}
+                 onChange={(e)=> onChangeStartTime(e.target.value)}/>
+        </div>
+        <Icon icon={faLandMineOn} onClick={()=>clickEndGetCurrentTime()} />
+        <div className="sec">
+          <input type="number" value={endTime} step="any"
+                 onFocus={(e)=> onChangeEndTime(e.target.value)}
+                 onChange={(e)=> onChangeEndTime(e.target.value)}/>
+        </div>
+        <Icon icon={faLandMineOn} onClick={()=>clickGetCurrentSubtitle()} />
+        <div className="desc">
+          <input type="text" value={repeatDesc} onChange={(e) => setRepeatDesc(e.target.value)}/>
+        </div>
+        <Icon icon={faCirclePlay} className="middle"/>
+        <Icon icon={faCirclePlus}  onClick={()=> clickAddRepeatItem()}/>
       </div>
       <DndContext
         onDragStart={handleDragStart}

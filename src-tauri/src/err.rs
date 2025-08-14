@@ -61,10 +61,4 @@ impl From<glob::PatternError> for ApiError {
         ApiError::GlobError(e.to_string())
     }
 }
-// impl From<windows::core::Error> for ApiError {
-//     fn from(e: windows::core::Error) -> Self {
-//         ApiError::Win32Error(e.to_string())
-//     }
-// }
 
-// glob::PatternError;

@@ -217,7 +217,6 @@ pub fn get_all_subtitle(movie_filepath: &str) -> Vec<Subtitle> {
             });
         }
     }
-    println!("{:?}", files);
     files
 }
 
@@ -227,12 +226,10 @@ pub fn get_subtitle_list(movie_filepath: String) -> ApiResult<Vec<Subtitle>> {
     p.set_extension("");
     let base_path = p.to_string_lossy().to_string();
     let pattern = Pattern::escape(&base_path) +  "*";
-    println!("pattern: {}", pattern);
 
     let mut files: Vec<Subtitle> = Vec::new();
     for entry in glob(&pattern)? {
         let Ok(path_buf) = entry else { continue };
-        println!("{:?}", path_buf);
         let Some(filename_os) = path_buf.file_name() else { continue };
         let filename = filename_os.to_string_lossy().to_string();
         if filename.len() > base_path.len() + 12 {

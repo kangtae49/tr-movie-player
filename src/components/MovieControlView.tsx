@@ -17,12 +17,7 @@ import {useDurationStore} from "@/stores/durationStore.ts";
 import {usePlaybackRateStore} from "@/stores/playbackRateStore.ts";
 import {useSubtitleTypeStore} from "@/stores/subtitleTypeStore.ts";
 import {ScreenType, useScreenTypeStore} from "@/stores/screenTypeStore.ts";
-
-function formatSeconds(seconds: number): string {
-  const minutes = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-}
+import {formatSeconds} from "@/components/utils.ts";
 
 
 function MovieControlView() {
