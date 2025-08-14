@@ -45,6 +45,7 @@ function PlayListView() {
       if (res == null) {
         return;
       }
+
       const items = res.map((path: string) => {
         return {
           id: path,
