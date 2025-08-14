@@ -12,6 +12,7 @@ import SortableContainer from "@/components/SortableContainer.tsx";
 import PlayItemView from "@/components/PlayItemView.tsx";
 import {usePlayItemsStore} from "@/stores/playItemsStore.ts";
 import {useSelectedPlayItemStore} from "@/stores/selectedPlayItemStore.ts";
+import {useIsRepeatStore} from "@/stores/isRepeatStore.ts";
 
 export type PlayItem = {
   id: string,
@@ -24,6 +25,7 @@ function PlayListView() {
   const setPlayItems = usePlayItemsStore((state) => state.setPlayItems);
   const selectedPlayItem = useSelectedPlayItemStore((state) => state.selectedPlayItem);
   const setSelectedPlayItem = useSelectedPlayItemStore((state) => state.setSelectedPlayItem);
+  const setIsRepeat = useIsRepeatStore((state) => state.setIsRepeat);
 
   const openPlayList = async () => {
     open({
@@ -44,6 +46,7 @@ function PlayListView() {
 
   const clickPlayItem = (playItem: PlayItem) => {
     setSelectedPlayItem(playItem);
+    setIsRepeat(false);
   }
 
   const removePlayItem = (playItem: PlayItem) => {

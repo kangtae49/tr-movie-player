@@ -271,8 +271,8 @@ pub fn srt_to_vtt(srt_path: String) -> ApiResult<String> {
 #[derive(Type, Serialize, Deserialize, JsonSchema, Clone, Debug)]
 pub struct RepeatItem {
     id: String,
-    start: u32,
-    end: u32,
+    start: f64,
+    end: f64,
     desc: Option<String>
 }
 

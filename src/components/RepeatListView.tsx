@@ -1,13 +1,13 @@
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome'
-import {faCirclePlus, faLandMineOn, faCirclePlay, faRepeat} from "@fortawesome/free-solid-svg-icons";
+import {faCirclePlus, faLandMineOn, faRepeat} from "@fortawesome/free-solid-svg-icons";
 import {useRepeatItemsStore} from "@/stores/repeatItemsStore.ts";
 import {useSelectedRepeatItemStore} from "@/stores/selectedRepeatItemStore.ts";
 import {DndContext, DragEndEvent, DragStartEvent} from "@dnd-kit/core";
 import {arrayMove, horizontalListSortingStrategy, SortableContext} from "@dnd-kit/sortable";
-import {commands, RepeatItem} from "@/bindings.ts";
+import {commands, RepeatItem, RepeatJson} from "@/bindings.ts";
 import SortableContainer from "@/components/SortableContainer.tsx";
 import RepeatItemView from "@/components/RepeatItemView.tsx";
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 import {useCurrentTimeStore} from "@/stores/currentTimeStore.ts";
 import useVideoControl from "@/components/useVideoControl.ts";
 import {useVideoRefStore} from "@/stores/videoRefStore.ts";
@@ -33,7 +33,6 @@ function RepeatListView() {
   const selectedRepeatItem = useSelectedRepeatItemStore((state) => state.selectedRepeatItem);
   const setSelectedRepeatItem = useSelectedRepeatItemStore((state) => state.setSelectedRepeatItem);
   const currentTime = useCurrentTimeStore((state) => state.currentTime);
-  const setCurrentTime = useCurrentTimeStore((state) => state.setCurrentTime);
   const videoRef = useVideoRefStore((state) => state.videoRef);
   const selectedPlayItem = useSelectedPlayItemStore((state) => state.selectedPlayItem);
   const startTime = useStartTimeStore((state) => state.startTime);
@@ -123,11 +122,13 @@ function RepeatListView() {
     if (repeatItems === undefined) return;
     if (selectedPlayItem == undefined) return;
     const jsonPath = changeExtension(selectedPlayItem.path, "json");
+    const json = {
+      items
+    } as RepeatJson;
+
     commands.writeRepeatJson(
       jsonPath,
-      {
-        items,
-      }
+      json
     ).then(res => {
       if (res.status === 'ok') {
         console.log('writeRepeatJson success');

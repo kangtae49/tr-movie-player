@@ -94,6 +94,9 @@ function MovieControlView() {
     if (!videoRef?.current) return;
     setCurrentTime(videoRef.current.currentTime);
   }
+  const onTimeSliderFocus = () => {
+    setIsRepeat(false);
+  }
 
   const onVolumeChange = () => {
     if (!videoRef?.current) return;
@@ -140,6 +143,13 @@ function MovieControlView() {
     };
   }, [videoRef])
 
+  useEffect(() => {
+    if (getRepeatClassName(isRepeat, startTime, endTime) !== "") return;
+    if (currentTime >= endTime) {
+      videoControl.changeCurrentTime(startTime);
+    }
+  }, [currentTime, startTime, endTime, isRepeat])
+
   return (
     <div className={`control-pane ${document.fullscreenElement == null ? '' : 'fullscreen'}`} >
       <div className="time-control">
@@ -150,12 +160,14 @@ function MovieControlView() {
           step={0.1}
           value={currentTime}
           onChange={handleTimeChange}
+          onFocus={onTimeSliderFocus}
         />
       </div>
       <div className="etc-control">
         <div className="left-control">
           <div className="current-time">
-            {formatSeconds(currentTime)} / {formatSeconds(duration)}
+            <div>{formatSeconds(currentTime)} / {formatSeconds(duration)}</div>
+            <div>{currentTime}</div>
           </div>
           <div className="checked-subtitle">
             <input type="checkbox"
