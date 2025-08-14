@@ -76,6 +76,19 @@ function RepeatListView() {
     setRepeatDesc(repeatItem.desc || '');
   }
 
+  const clickCurRepeatItem = () => {
+    const repeatItem: RepeatItem = {
+      id: `${startTime}-${endTime}`,
+      start: startTime,
+      end: endTime,
+      desc: repeatDesc
+    };
+    setSelectedRepeatItem(repeatItem);
+    setStartTime(repeatItem.start);
+    setEndTime(repeatItem.end);
+    setRepeatDesc(repeatItem.desc || '');
+  }
+
   const clickAddRepeatItem = () => {
     if (repeatItems === undefined) return;
     if (selectedPlayItem == undefined) return;
@@ -228,7 +241,7 @@ function RepeatListView() {
         <div className="desc">
           <input type="text" value={repeatDesc} onChange={(e) => setRepeatDesc(e.target.value)}/>
         </div>
-        <Icon icon={faRepeat} className={`${getRepeatClassName(startTime, endTime)}`} onClick={() => clickRepeatItem()} />
+        <Icon icon={faRepeat} className={`${getRepeatClassName(startTime, endTime)}`} onClick={() => clickCurRepeatItem()} />
         <Icon icon={faCirclePlus} className={`middle ${getRepeatClassName(startTime, endTime)}`} onClick={()=> clickAddRepeatItem()}/>
       </div>
       <DndContext
