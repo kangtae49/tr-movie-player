@@ -14,6 +14,7 @@ import {commands} from "@/bindings.ts";
 import {useSubtitlesStore} from "@/stores/subtitlesStore.ts";
 import {useSelectedSubtitleStore} from "@/stores/selectedSubtitleStore.ts";
 import {useSubtitleTypeStore} from "@/stores/subtitleTypeStore.ts";
+import {useVideoRefStore} from "@/stores/videoRefStore.ts";
 
 export type PlayItem = {
   id: string,
@@ -21,6 +22,7 @@ export type PlayItem = {
 }
 function PlayListView() {
   const httpServer = useHttp();
+  // const videoRef = useVideoRefStore((state) => state.videoRef);
   const playItems = usePlayItemsStore((state) => state.playItems);
   const setPlayItems = usePlayItemsStore((state) => state.setPlayItems);
   const selectedPlayItem = useSelectedPlayItemStore((state) => state.selectedPlayItem);
@@ -29,6 +31,7 @@ function PlayListView() {
   const setSubtitles = useSubtitlesStore((state) => state.setSubtitles);
   const setSelectedSubtitle = useSelectedSubtitleStore((state) => state.setSelectedSubtitle);
   const subtitleType = useSubtitleTypeStore((state) => state.subtitleType);
+
 
   const openPlayList = () => {
     open({
@@ -113,15 +116,9 @@ function PlayListView() {
 
   useEffect(() => {
     if (selectedPlayItem === undefined) return;
-    console.log('selectedPlayItem:1 ', selectedPlayItem);
-    // get movie file
-    // get subtitles file
-    // load movie
     if (httpServer === undefined) return;
-    // if (!videoRef?.current) return;
     console.log('selectedPlayItem:', selectedPlayItem);
-
-    console.log('MoviePlayerView:', httpServer?.servInfo)
+    // console.log('MoviePlayerView:', httpServer?.servInfo)
     setVideoSrc(httpServer.getSrc(selectedPlayItem.path));
     commands.getSubtitleList(selectedPlayItem.path).then(res=>{
       if(res.status === 'ok') {
@@ -135,14 +132,11 @@ function PlayListView() {
           } else {
             setSelectedSubtitle(subtitles[0]);
           }
-
+        } else {
+          setSelectedSubtitle(undefined);
         }
       }
     })
-
-    // httpServer.getSrcBlobUrl(vtt).then(setSubtitleSrc);
-
-    // videoRef.current.src = selectedPlayItem.path;
   }, [selectedPlayItem, httpServer])
 
   return (

@@ -29,8 +29,9 @@ function MoviePlayerView() {
 
   useEffect(() => {
     if (httpServer === undefined) return;
-    if (selectedSubtitle === undefined) return;
-    if (selectedSubtitle.ext == 'vtt') {
+    if (selectedSubtitle === undefined) {
+      setSubtitleSrc(undefined);
+    } else if (selectedSubtitle.ext == 'vtt') {
       httpServer.getSrcBlobUrl(selectedSubtitle.path).then(setSubtitleSrc);
     } else if (selectedSubtitle.ext == 'srt') {
       commands.convertSrtToVtt(selectedSubtitle.path).then(res => {

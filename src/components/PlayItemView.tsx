@@ -4,6 +4,8 @@ import {useSortable} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
 import {PlayItem} from "@/components/PlayListView.tsx";
 import {useSelectedPlayItemStore} from "@/stores/selectedPlayItemStore.ts";
+import {useSelectedSubtitleStore} from "@/stores/selectedSubtitleStore.ts";
+import {useIsPlayStore} from "@/stores/isPlayStore.ts";
 
 type Props = {
   playItem: PlayItem
@@ -12,6 +14,8 @@ type Props = {
 function PlayItemView({playItem, removePlayItem}: Props) {
   const selectedPlayItem = useSelectedPlayItemStore((state) => state.selectedPlayItem);
   const setSelectedPlayItem = useSelectedPlayItemStore((state) => state.setSelectedPlayItem);
+  const setSelectedSubtitle = useSelectedSubtitleStore((state) => state.setSelectedSubtitle);
+  const setIsPlay = useIsPlayStore((state) => state.setIsPlay);
 
   const sortable = useSortable({
     id: playItem.id,
@@ -27,6 +31,12 @@ function PlayItemView({playItem, removePlayItem}: Props) {
     transform: CSS.Translate.toString(sortable.transform),
   };
 
+  const clickPlayItem = (playItem: PlayItem) => {
+    setSelectedPlayItem(playItem);
+    setSelectedSubtitle(undefined);
+    setIsPlay(false);
+  }
+
   return (
     <div className={`item ${selectedPlayItem?.id === playItem.id ? 'selected' : ''}`}
          ref={(node) => {
@@ -34,7 +44,7 @@ function PlayItemView({playItem, removePlayItem}: Props) {
          }}
          style={style}
     >
-      <div className="item-icon" onClick={() => setSelectedPlayItem(playItem)}><Icon className="small" icon={faCirclePlay} /></div>
+      <div className="item-icon" onClick={() => clickPlayItem(playItem)}><Icon className="small" icon={faCirclePlay} /></div>
 
       <div className="item-path"
            {...mergedProps}

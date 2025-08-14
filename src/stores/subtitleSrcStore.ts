@@ -6,6 +6,6 @@ export interface SubtitleSrcStore {
 }
 
 export const useSubtitleSrcStore = create<SubtitleSrcStore>((set) => ({
-  videoSrc: undefined,
+  subtitleSrc: undefined,
   setSubtitleSrc: (subtitleSrc: string | undefined) => set({ subtitleSrc }),
 }))
