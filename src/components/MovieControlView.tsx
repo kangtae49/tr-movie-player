@@ -59,8 +59,9 @@ function MovieControlView() {
   const isRepeat = useIsRepeatStore((state) => state.isRepeat);
   const setIsRepeat = useIsRepeatStore((state) => state.setIsRepeat);
   const startTime = useStartTimeStore((state) => state.startTime);
+  const setStartTime = useStartTimeStore((state) => state.setStartTime);
   const endTime = useEndTimeStore((state) => state.endTime);
-
+  const setEndTime = useEndTimeStore((state) => state.setEndTime);
   const [isResizing, setIsResizing] = useState(false);
 
   const videoControl = useVideoControl();
@@ -120,6 +121,42 @@ function MovieControlView() {
     setSubtitleType(`${subtitle?.lang || ""}.${subtitle?.ext || ""}`);
   }, [subtitles]);
 
+  const handleKeyDown = useCallback(async (e: KeyboardEvent) => {
+    const delta = 0.2;
+    if (e.key === " " || e.key === "Space") {
+      console.log("Space");
+      await videoControl.togglePlay();
+    } else if (e.ctrlKey && e.key === "ArrowLeft") {
+      console.log("Ctrl + ←");
+      e.preventDefault();
+      let tm = startTime - delta;
+      console.log(startTime, tm);
+      tm = Math.max(0, tm);
+      setStartTime(tm);
+    } else if (e.ctrlKey && e.key === "ArrowRight") {
+      console.log("Ctrl + →");
+      e.preventDefault();
+      let tm = startTime + delta;
+      console.log(startTime, tm);
+      tm = Math.min(duration, tm);
+      setStartTime(tm);
+    } else if (e.altKey && e.key === "ArrowLeft") {
+      console.log("Alt + ←");
+      e.preventDefault();
+      let tm = endTime - delta;
+      console.log(endTime, tm);
+      tm = Math.max(0, tm);
+      setEndTime(tm);
+    } else if (e.altKey && e.key === "ArrowRight") {
+      console.log("Alt + →");
+      e.preventDefault();
+      let tm = endTime + delta;
+      console.log(endTime, tm);
+      tm = Math.min(duration, tm);
+      setEndTime(tm);
+    }
+  }, [currentTime, startTime, endTime, isPlay, isRepeat]);
+
   useEffect(() => {
     if (!videoRef?.current) return;
     videoRef.current.volume = 0.5;
@@ -149,6 +186,13 @@ function MovieControlView() {
       videoControl.changeCurrentTime(startTime);
     }
   }, [currentTime, startTime, endTime, isRepeat])
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [currentTime, startTime, endTime, isPlay, isRepeat])
 
   return (
     <div className={`control-pane ${document.fullscreenElement == null ? '' : 'fullscreen'}`} >
