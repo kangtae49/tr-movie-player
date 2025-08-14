@@ -150,7 +150,7 @@ impl HttpServer {
 
 }
 async fn get_health() -> impl IntoResponse {
-    Json({}).into_response()
+    Json(json!({})).into_response()
 }
 
 
