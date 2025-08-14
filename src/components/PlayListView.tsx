@@ -1,20 +1,17 @@
+import {useEffect} from "react";
 import {open} from "@tauri-apps/plugin-dialog"
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome'
 import {faForwardStep, faBackwardStep, faCirclePlus, faCircleMinus} from '@fortawesome/free-solid-svg-icons'
-import {useEffect} from "react";
 import {DndContext, DragEndEvent, DragStartEvent} from "@dnd-kit/core";
-import SortableContainer from "@/components/SortableContainer.tsx";
 import {arrayMove, horizontalListSortingStrategy, SortableContext} from "@dnd-kit/sortable";
+
+import {useHttp} from "@/components/HttpServerProvider.tsx";
+import useVideoControl from "@/components/useVideoControl.ts";
+
+import SortableContainer from "@/components/SortableContainer.tsx";
 import PlayItemView from "@/components/PlayItemView.tsx";
 import {usePlayItemsStore} from "@/stores/playItemsStore.ts";
 import {useSelectedPlayItemStore} from "@/stores/selectedPlayItemStore.ts";
-import {useHttp} from "@/components/HttpServerProvider.tsx";
-import {useVideoSrcStore} from "@/stores/videoSrcStore.ts";
-import {commands} from "@/bindings.ts";
-import {useSubtitlesStore} from "@/stores/subtitlesStore.ts";
-import {useSelectedSubtitleStore} from "@/stores/selectedSubtitleStore.ts";
-import {useSubtitleTypeStore} from "@/stores/subtitleTypeStore.ts";
-import {useVideoRefStore} from "@/stores/videoRefStore.ts";
 
 export type PlayItem = {
   id: string,
@@ -22,18 +19,13 @@ export type PlayItem = {
 }
 function PlayListView() {
   const httpServer = useHttp();
-  // const videoRef = useVideoRefStore((state) => state.videoRef);
+  const videoControl = useVideoControl();
   const playItems = usePlayItemsStore((state) => state.playItems);
   const setPlayItems = usePlayItemsStore((state) => state.setPlayItems);
   const selectedPlayItem = useSelectedPlayItemStore((state) => state.selectedPlayItem);
   const setSelectedPlayItem = useSelectedPlayItemStore((state) => state.setSelectedPlayItem);
-  const setVideoSrc = useVideoSrcStore((state) => state.setVideoSrc);
-  const setSubtitles = useSubtitlesStore((state) => state.setSubtitles);
-  const setSelectedSubtitle = useSelectedSubtitleStore((state) => state.setSelectedSubtitle);
-  const subtitleType = useSubtitleTypeStore((state) => state.subtitleType);
 
-
-  const openPlayList = () => {
+  const openPlayList = async () => {
     open({
       directory: false,
       multiple: true,
@@ -41,27 +33,19 @@ function PlayListView() {
         { name: 'Video', extensions: ['mp4', 'webm', 'mkv', 'ogg'] },
         { name: 'All Files', extensions: ['*'] },
       ]
-    }).then(res => {
-      if (res == null) {
+    }).then(files => {
+      if (files == null) {
         return;
       }
+      videoControl.addPlayFiles(files);
 
-      const items = res.map((path: string) => {
-        return {
-          id: path,
-          path: path,
-        } as PlayItem;
-      }) || [];
-      const merged = [...playItems, ...items];
-      const uniqueList = Array.from(
-        new Map(merged.map(item => [item.path, item])).values()
-      );
-      setPlayItems(uniqueList);
-      if (selectedPlayItem === undefined) {
-        setSelectedPlayItem(uniqueList[0]);
-      }
     })
   }
+
+  const clickPlayItem = (playItem: PlayItem) => {
+    setSelectedPlayItem(playItem);
+  }
+
   const removePlayItem = (playItem: PlayItem) => {
     if (playItems === undefined) return;
     setPlayItems(playItems.filter((item: PlayItem) => item.id !== playItem.id));
@@ -116,28 +100,7 @@ function PlayListView() {
   }
 
   useEffect(() => {
-    if (selectedPlayItem === undefined) return;
-    if (httpServer === undefined) return;
-    console.log('selectedPlayItem:', selectedPlayItem);
-    // console.log('MoviePlayerView:', httpServer?.servInfo)
-    setVideoSrc(httpServer.getSrc(selectedPlayItem.path));
-    commands.getSubtitleList(selectedPlayItem.path).then(res=>{
-      if(res.status === 'ok') {
-        const subtitles = res.data;
-        setSubtitles(subtitles);
-        if (subtitles.length > 0) {
-          const [lang, ext] = subtitleType.split(".");
-          const findSubtitle = subtitles.find((subtitle) => subtitle.ext == ext && subtitle.lang == lang);
-          if(findSubtitle) {
-            setSelectedSubtitle(findSubtitle);
-          } else {
-            setSelectedSubtitle(subtitles[0]);
-          }
-        } else {
-          setSelectedSubtitle(undefined);
-        }
-      }
-    })
+    videoControl.changePlayItem().then();
   }, [selectedPlayItem, httpServer])
 
   return (
@@ -145,8 +108,8 @@ function PlayListView() {
       <div className="list-header">
         <Icon icon={faCirclePlus} onClick={openPlayList} />
         <Icon icon={faCircleMinus} onClick={()=>setPlayItems([])} />
-        <Icon icon={faBackwardStep} />
-        <Icon icon={faForwardStep} />
+        <Icon icon={faBackwardStep} onClick={() => videoControl.prevPlayItem()} />
+        <Icon icon={faForwardStep} onClick={() => videoControl.nextPlayItem()} />
       </div>
       <DndContext
         onDragStart={handleDragStart}
@@ -156,7 +119,7 @@ function PlayListView() {
         <SortableContext items={playItems} strategy={horizontalListSortingStrategy}>
           {(playItems).map((playItem, _index: number) => {
             return (
-              <PlayItemView key={playItem.id} playItem={playItem} removePlayItem={removePlayItem} />
+              <PlayItemView key={playItem.id} playItem={playItem} removePlayItem={removePlayItem} clickPlayItem={clickPlayItem} />
             )
           })}
         </SortableContext>

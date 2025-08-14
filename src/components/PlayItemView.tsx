@@ -9,13 +9,11 @@ import {useIsPlayStore} from "@/stores/isPlayStore.ts";
 
 type Props = {
   playItem: PlayItem
+  clickPlayItem: (playItem: PlayItem) => void
   removePlayItem: (playItem: PlayItem) => void
 }
-function PlayItemView({playItem, removePlayItem}: Props) {
+function PlayItemView({playItem, clickPlayItem, removePlayItem}: Props) {
   const selectedPlayItem = useSelectedPlayItemStore((state) => state.selectedPlayItem);
-  const setSelectedPlayItem = useSelectedPlayItemStore((state) => state.setSelectedPlayItem);
-  const setSelectedSubtitle = useSelectedSubtitleStore((state) => state.setSelectedSubtitle);
-  const setIsPlay = useIsPlayStore((state) => state.setIsPlay);
 
   const sortable = useSortable({
     id: playItem.id,
@@ -30,12 +28,6 @@ function PlayItemView({playItem, removePlayItem}: Props) {
     // Outputs `translate3d(x, y, 0)`
     transform: CSS.Translate.toString(sortable.transform),
   };
-
-  const clickPlayItem = (playItem: PlayItem) => {
-    setSelectedPlayItem(playItem);
-    setSelectedSubtitle(undefined);
-    setIsPlay(false);
-  }
 
   return (
     <div className={`item ${selectedPlayItem?.id === playItem.id ? 'selected' : ''}`}
