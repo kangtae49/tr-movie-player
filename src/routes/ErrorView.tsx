@@ -1,7 +1,7 @@
 function ErrorView() {
   return (
     <div>
-      ErrorView
+      ErrorView <button onClick={() => {location.reload()}} >Reload</button>
     </div>
   )
 }

@@ -21,6 +21,7 @@ import {formatSeconds, round4} from "@/components/utils.ts";
 import {useIsRepeatStore} from "@/stores/isRepeatStore.ts";
 import {useStartTimeStore} from "@/stores/startTimeStore.ts";
 import {useEndTimeStore} from "@/stores/endTimeStore.ts";
+import {useVideoSrcStore} from "@/stores/videoSrcStore.ts";
 
 const getRepeatClassName = (isRepeat: boolean, startTime: number, endTime: number) => {
   if (isRepeat) {
@@ -62,18 +63,61 @@ function MovieControlView() {
   const setStartTime = useStartTimeStore((state) => state.setStartTime);
   const endTime = useEndTimeStore((state) => state.endTime);
   const setEndTime = useEndTimeStore((state) => state.setEndTime);
+  const videoSrc = useVideoSrcStore((state) => state.videoSrc);
   const [isResizing, setIsResizing] = useState(false);
 
   const videoControl = useVideoControl();
 
-  const keyDownHandler = async (e: KeyboardEvent) => {
-    if (e.key === " ") {
+  // const keyDownHandler = async (e: KeyboardEvent) => {
+  //   if (e.key === " ") {
+  //
+  //   } else if (e.key === "F11") {
+  //     e.preventDefault();
+  //     await videoControl.toggleFullScreen();
+  //   }
+  // };
 
-    } else if (e.key === "F11") {
+  const keyDownHandler = useCallback(async (e: KeyboardEvent) => {
+    const delta = 0.2;
+    if (e.key === "F11") {
       e.preventDefault();
       await videoControl.toggleFullScreen();
+    } else if (e.key === " " || e.key === "Space") {
+      console.log("Space");
+      e.preventDefault();
+      await videoControl.togglePlay();
+    } else if (e.ctrlKey && e.key === "ArrowLeft") {
+      console.log("Ctrl + ←");
+      e.preventDefault();
+      let tm = startTime - delta;
+      console.log(startTime, tm);
+      tm = Math.max(0, tm);
+      // videoControl.changeCurrentTime(tm);
+      setStartTime(tm);
+    } else if (e.ctrlKey && e.key === "ArrowRight") {
+      console.log("Ctrl + →");
+      e.preventDefault();
+      let tm = startTime + delta;
+      console.log(startTime, tm);
+      tm = Math.min(duration, tm);
+      // videoControl.changeCurrentTime(tm);
+      setStartTime(tm);
+    } else if (e.altKey && e.key === "ArrowLeft") {
+      console.log("Alt + ←");
+      e.preventDefault();
+      let tm = endTime - delta;
+      console.log(endTime, tm);
+      tm = Math.max(0, tm);
+      setEndTime(tm);
+    } else if (e.altKey && e.key === "ArrowRight") {
+      console.log("Alt + →");
+      e.preventDefault();
+      let tm = endTime + delta;
+      console.log(endTime, tm);
+      tm = Math.min(duration, tm);
+      setEndTime(tm);
     }
-  };
+  }, [startTime, endTime, videoRef]);
 
   const onPlay = () => {
     setIsPlay(true);
@@ -121,44 +165,7 @@ function MovieControlView() {
     setSubtitleType(`${subtitle?.lang || ""}.${subtitle?.ext || ""}`);
   }, [subtitles]);
 
-  const handleKeyDown = useCallback(async (e: KeyboardEvent) => {
-    e.preventDefault();
-    const delta = 0.2;
-    if (e.key === " " || e.key === "Space") {
-      console.log("Space");
-      await videoControl.togglePlay();
-    } else if (e.ctrlKey && e.key === "ArrowLeft") {
-      console.log("Ctrl + ←");
-      e.preventDefault();
-      let tm = startTime - delta;
-      console.log(startTime, tm);
-      tm = Math.max(0, tm);
-      // videoControl.changeCurrentTime(tm);
-      setStartTime(tm);
-    } else if (e.ctrlKey && e.key === "ArrowRight") {
-      console.log("Ctrl + →");
-      e.preventDefault();
-      let tm = startTime + delta;
-      console.log(startTime, tm);
-      tm = Math.min(duration, tm);
-      // videoControl.changeCurrentTime(tm);
-      setStartTime(tm);
-    } else if (e.altKey && e.key === "ArrowLeft") {
-      console.log("Alt + ←");
-      e.preventDefault();
-      let tm = endTime - delta;
-      console.log(endTime, tm);
-      tm = Math.max(0, tm);
-      setEndTime(tm);
-    } else if (e.altKey && e.key === "ArrowRight") {
-      console.log("Alt + →");
-      e.preventDefault();
-      let tm = endTime + delta;
-      console.log(endTime, tm);
-      tm = Math.min(duration, tm);
-      setEndTime(tm);
-    }
-  }, [startTime, endTime]);
+
 
   useEffect(() => {
     if (!videoRef?.current) return;
@@ -190,12 +197,12 @@ function MovieControlView() {
     }
   }, [currentTime, startTime, endTime, isRepeat])
 
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [currentTime, startTime, endTime, isPlay, isRepeat])
+  // useEffect(() => {
+  //   window.addEventListener("keydown", handleKeyDown, { capture: true });
+  //   return () => {
+  //     window.removeEventListener("keydown", handleKeyDown, { capture: true });
+  //   };
+  // }, [currentTime, startTime, endTime, isPlay, isRepeat])
 
   return (
     <div className={`control-pane ${document.fullscreenElement == null ? '' : 'fullscreen'}`} >

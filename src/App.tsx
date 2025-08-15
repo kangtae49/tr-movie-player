@@ -19,6 +19,10 @@ export const router = createBrowserRouter([
         path: '/movie-player',
         element: <MainView />,
       },
+      {
+        path: '/error',
+        element: <ErrorView />,
+      },
     ]
   },
 ]);

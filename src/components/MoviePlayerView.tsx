@@ -14,6 +14,7 @@ function MoviePlayerView() {
   const httpServer = useHttp();
   const vRef = useRef<HTMLVideoElement>(null);
   const setVideoRef = useVideoRefStore((state) => state.setVideoRef);
+  const videoRef = useVideoRefStore((state) => state.videoRef);
   const videoSrc = useVideoSrcStore((state) => state.videoSrc);
   const subtitleSrc = useSubtitleSrcStore((state) => state.subtitleSrc);
   const selectedSubtitle = useSelectedSubtitleStore((state) => state.selectedSubtitle);
@@ -52,7 +53,12 @@ function MoviePlayerView() {
 
   return (
     <div className="movie-pane">
-      <div className="video">
+      {videoSrc === undefined && (
+        <div className="no-video">
+          <img src="/tr-movie-player.svg" alt="Open Video File" onClick={() => videoControl.openPlayDialog()}/>
+        </div>
+      )}
+      {videoRef && <div className="video">
         <video
           ref={vRef}
           src={videoSrc}
@@ -74,6 +80,7 @@ function MoviePlayerView() {
           )}
         </video>
       </div>
+      }
     </div>
   )
 }

@@ -14,9 +14,10 @@ import {useSubtitlesStore} from "@/stores/subtitlesStore.ts";
 import {useSubtitleTypeStore} from "@/stores/subtitleTypeStore.ts";
 import {usePlayItemsStore} from "@/stores/playItemsStore.ts";
 import {PlayItem} from "@/components/PlayListView.tsx";
-import {useIsRepeatStore} from "@/stores/isRepeatStore.ts";
-import {useStartTimeStore} from "@/stores/startTimeStore.ts";
-import {useEndTimeStore} from "@/stores/endTimeStore.ts";
+// import {useIsRepeatStore} from "@/stores/isRepeatStore.ts";
+// import {useStartTimeStore} from "@/stores/startTimeStore.ts";
+// import {useEndTimeStore} from "@/stores/endTimeStore.ts";
+import {open} from "@tauri-apps/plugin-dialog";
 
 interface UseVideoControls {
   togglePlay: () => Promise<void>;
@@ -31,11 +32,13 @@ interface UseVideoControls {
   changeVolume: (volume: number) => void;
   changePlaybackRate: (rate: number) => void;
   addPlayFiles: (files: string[]) => Promise<void>;
+  openPlayDialog: () => Promise<void>;
 
 }
 function useVideoControl(): UseVideoControls {
   const httpServer = useHttp();
   const videoRef = useVideoRefStore((state) => state.videoRef);
+  // const videoSrc = useVideoSrcStore((state) => state.videoSrc);
   const isPlay = useIsPlayStore((state) => state.isPlay);
   const selectedPlayItem = useSelectedPlayItemStore((state) => state.selectedPlayItem);
   const subtitleType = useSubtitleTypeStore((state) => state.subtitleType);
@@ -51,11 +54,11 @@ function useVideoControl(): UseVideoControls {
   const setSubtitles = useSubtitlesStore((state) => state.setSubtitles);
   const setSelectedPlayItem = useSelectedPlayItemStore((state) => state.setSelectedPlayItem);
   const setPlayItems = usePlayItemsStore((state) => state.setPlayItems);
-  const isRepeat = useIsRepeatStore((state) => state.isRepeat);
-  const startTime = useStartTimeStore((state) => state.startTime);
-  const setStartTime = useStartTimeStore((state) => state.setStartTime);
-  const endTime = useEndTimeStore((state) => state.endTime);
-  const setEndTime = useEndTimeStore((state) => state.setEndTime);
+  // const isRepeat = useIsRepeatStore((state) => state.isRepeat);
+  // const startTime = useStartTimeStore((state) => state.startTime);
+  // const setStartTime = useStartTimeStore((state) => state.setStartTime);
+  // const endTime = useEndTimeStore((state) => state.endTime);
+  // const setEndTime = useEndTimeStore((state) => state.setEndTime);
 
 
   const togglePlay = useCallback( async () => {
@@ -145,6 +148,7 @@ function useVideoControl(): UseVideoControls {
   }, [videoRef]);
 
   const changeCurrentTime = useCallback((time: number) => {
+    console.log('changeCurrentTime');
     if (!videoRef?.current) return;
     videoRef.current.currentTime = time;
     setCurrentTime(time);
@@ -182,7 +186,21 @@ function useVideoControl(): UseVideoControls {
 
   }, [playItems]);
 
-
+  const openPlayDialog = async () => {
+    open({
+      directory: false,
+      multiple: true,
+      filters: [
+        { name: 'Video', extensions: ['mp4', 'webm', 'mkv', 'ogg'] },
+        { name: 'All Files', extensions: ['*'] },
+      ]
+    }).then(files => {
+      if (files == null) {
+        return;
+      }
+      addPlayFiles(files);
+    })
+  }
 
   return {
     togglePlay,
@@ -197,6 +215,7 @@ function useVideoControl(): UseVideoControls {
     prevPlayItem,
     nextPlayItem,
     addPlayFiles,
+    openPlayDialog,
   }
 }
 

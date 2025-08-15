@@ -43,7 +43,7 @@ function RepeatListView() {
   const setIsRepeat = useIsRepeatStore((state) => state.setIsRepeat);
   const repeatDesc = useRepeatDescStore((state) => state.repeatDesc);
   const setRepeatDesc = useRepeatDescStore((state) => state.setRepeatDesc);
-  const duration = useDurationStore((state) => state.duration);
+  // const duration = useDurationStore((state) => state.duration);
 
   const videoControl = useVideoControl();
 
@@ -118,7 +118,7 @@ function RepeatListView() {
       await videoControl.pause();
       setStartTime(v);
     }
-  }, [startTime]);
+  }, [videoRef, startTime]);
 
   const onFocusEndTime = useCallback(async () => {
     console.log('onFocusEndTime:', endTime);
@@ -129,17 +129,17 @@ function RepeatListView() {
       await videoControl.pause();
       setEndTime(v);
     }
-  }, [endTime]);
+  }, [videoRef, endTime]);
 
 
   const onChangeStartTime = useCallback((value: string) => {
     const v = Number(value);
     if (!isNaN(v)) {
+      setStartTime(v);
       videoControl.changeCurrentTime(v);
       console.log('!!!!start time');
-      setStartTime(v);
     }
-  }, []);
+  }, [videoRef]);
 
   const onChangeEndTime = useCallback((value: string) => {
     const v = Number(value);
@@ -148,7 +148,7 @@ function RepeatListView() {
       console.log('!!!!end time');
       setEndTime(v);
     }
-  }, []);
+  }, [videoRef]);
 
 
   const removeRepeatItem = (repeatItem: RepeatItem) => {
@@ -249,6 +249,10 @@ function RepeatListView() {
       videoControl.play().then();
     }
   }, [selectedRepeatItem]);
+
+  useEffect(() => {
+    setSelectedRepeatItem(undefined);
+  }, [repeatItems])
 
   return (
     <div className="repeat-list">

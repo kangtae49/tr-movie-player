@@ -3,9 +3,7 @@ import {useSelectedRepeatItemStore} from "@/stores/selectedRepeatItemStore.ts";
 import {useSortable} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
 import {FontAwesomeIcon as Icon} from "@fortawesome/react-fontawesome";
-import {faCircleXmark, faRepeat} from "@fortawesome/free-solid-svg-icons";
-import {useStartTimeStore} from "@/stores/startTimeStore.ts";
-import {useEndTimeStore} from "@/stores/endTimeStore.ts";
+import {faCircleXmark, faRepeat, faUpDownLeftRight} from "@fortawesome/free-solid-svg-icons";
 
 type Props = {
   repeatItem: RepeatItem
@@ -23,10 +21,6 @@ const getRepeatClassName = (startTime: number, endTime: number) => {
 
 function RepeatItemView({repeatItem, clickRepeatItem, removeRepeatItem}: Props) {
   const selectedRepeatItem = useSelectedRepeatItemStore((state) => state.selectedRepeatItem);
-  const setSelectedRepeatItem = useSelectedRepeatItemStore((state) => state.setSelectedRepeatItem);
-  const startTime = useStartTimeStore((state) => state.startTime);
-  const endTime = useEndTimeStore((state) => state.endTime);
-
   const sortable = useSortable({
     id: repeatItem.id,
   });
@@ -47,22 +41,19 @@ function RepeatItemView({repeatItem, clickRepeatItem, removeRepeatItem}: Props) 
          }}
          style={style}
     >
+      <div className="item-icon" {...mergedProps}>
+        <Icon icon={faUpDownLeftRight} />
+      </div>
       <div className="item-icon" onClick={() => clickRepeatItem(repeatItem)}>
         <Icon className={getRepeatClassName(repeatItem.start, repeatItem.end)} icon={faRepeat} />
       </div>
-      <div className="item-start"
-           {...mergedProps}
-      >
+      <div className="item-start" onClick={()=> clickRepeatItem(repeatItem)}>
         {repeatItem.start}
       </div>
-      <div className="item-end"
-           {...mergedProps}
-      >
+      <div className="item-end" onClick={()=> clickRepeatItem(repeatItem)}>
         {repeatItem.end}
       </div>
-      <div className="item-desc"
-           {...mergedProps}
-      >
+      <div className="item-desc" onClick={()=> clickRepeatItem(repeatItem)}>
         {repeatItem.desc}
       </div>
       <div className="close" onClick={() => removeRepeatItem(repeatItem)}><Icon icon={faCircleXmark} /></div>

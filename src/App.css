@@ -112,7 +112,21 @@ video {
   object-fit: contain;
 }
 
+.no-video {
+  flex: 1;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  object-fit: contain;
+  cursor: pointer;
+}
 
+.no-video img {
+  width: 100%;
+  height: 100%;
+}
 
 .play-list, .repeat-list {
   display: flex;
@@ -159,6 +173,10 @@ video {
 }
 
 
+.fa-folder.xlarge { width: 100px; height: 100px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-folder.xlarge:hover { transform: var(--scale); color: var(--hover-color); }
+
+
 .fa-circle-play.large { width: 30px; height: 30px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
 .fa-circle-play.large:hover { transform: var(--scale); color: var(--hover-color); }
 .fa-circle-pause.large { width: 30px; height: 30px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
@@ -166,6 +184,8 @@ video {
 .fa-maximize { width: 30px; height: 30px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
 .fa-maximize:hover { transform: var(--scale); color: var(--hover-color); }
 
+.fa-folder.middle { width: 20px; height: 20px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-folder.middle:hover { transform: var(--scale); color: var(--hover-color); }
 .fa-volume-high { width: 20px; height: 20px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
 .fa-volume-high:hover { transform: var(--scale); color: var(--hover-color); }
 .fa-volume-xmark { width: 20px; height: 20px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
@@ -183,6 +203,8 @@ video {
 .fa-backward-step { width: 20px; height: 20px; color: var(--selected-color); margin-right: 5px; cursor: pointer; }
 .fa-backward-step:hover { transform: var(--scale); color: var(--hover-color); }
 
+.fa-up-down-left-right { color: var(--selected-color); margin-right: 5px; cursor: pointer; }
+.fa-up-down-left-right:hover { transform: var(--scale); color: var(--hover-color); }
 .fa-circle-pause { color: var(--selected-color); margin-right: 5px; cursor: pointer; }
 .fa-circle-pause:hover { transform: var(--scale); color: var(--hover-color); }
 .fa-circle-xmark { color: var(--selected-color); margin-right: 5px; cursor: pointer; }

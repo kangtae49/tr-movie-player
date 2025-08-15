@@ -1,7 +1,6 @@
 import {useEffect} from "react";
-import {open} from "@tauri-apps/plugin-dialog"
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome'
-import {faForwardStep, faBackwardStep, faCirclePlus, faCircleMinus} from '@fortawesome/free-solid-svg-icons'
+import {faForwardStep, faBackwardStep, faCircleMinus, faFolder} from '@fortawesome/free-solid-svg-icons'
 import {DndContext, DragEndEvent, DragStartEvent} from "@dnd-kit/core";
 import {arrayMove, horizontalListSortingStrategy, SortableContext} from "@dnd-kit/sortable";
 
@@ -26,23 +25,6 @@ function PlayListView() {
   const selectedPlayItem = useSelectedPlayItemStore((state) => state.selectedPlayItem);
   const setSelectedPlayItem = useSelectedPlayItemStore((state) => state.setSelectedPlayItem);
   const setIsRepeat = useIsRepeatStore((state) => state.setIsRepeat);
-
-  const openPlayList = async () => {
-    open({
-      directory: false,
-      multiple: true,
-      filters: [
-        { name: 'Video', extensions: ['mp4', 'webm', 'mkv', 'ogg'] },
-        { name: 'All Files', extensions: ['*'] },
-      ]
-    }).then(files => {
-      if (files == null) {
-        return;
-      }
-      videoControl.addPlayFiles(files);
-
-    })
-  }
 
   const clickPlayItem = (playItem: PlayItem) => {
     setSelectedPlayItem(playItem);
@@ -109,7 +91,7 @@ function PlayListView() {
   return (
     <div className="play-list">
       <div className="list-header">
-        <Icon icon={faCirclePlus} onClick={openPlayList} />
+        <Icon icon={faFolder} className="middle" onClick={() => videoControl.openPlayDialog()} />
         <Icon icon={faCircleMinus} onClick={()=>setPlayItems([])} />
         <Icon icon={faBackwardStep} onClick={() => videoControl.prevPlayItem()} />
         <Icon icon={faForwardStep} onClick={() => videoControl.nextPlayItem()} />

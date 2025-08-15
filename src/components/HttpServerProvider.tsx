@@ -14,28 +14,41 @@ type HttpContextType = {
   getSrcText: (path: string) => Promise<string>
   getSrcBlob: (path: string) => Promise<Blob>
   getSrcBlobUrl: (path: string) => Promise<string>
+  healthCheck: () => Promise<Response>
 }
 
 export function HttpServerProvider({children}: Props) {
   const [httpServer, setHttpServer] = useState<HttpContextType|undefined>(undefined);
   const [servInfo, setServInfo] = useState<ServInfo|undefined>(undefined);
 
-  function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+  const getSrc = (path: string) => {
+    return `http://localhost:${servInfo?.port}/get_file?path=${path}`
+  };
+  const getSrcJson = async (path: string) => {
+    const url = `http://localhost:${servInfo?.port}/get_file?path=${path}`;
+    return fetch(url)
+      .then(res => res.json());
+  };
+  const getSrcText = async (path: string) => {
+    const url = `http://localhost:${servInfo?.port}/get_file?path=${path}`;
+    return fetch(url)
+      .then(res => res.text())
+  };
+  const getSrcBlob = async (path: string) => {
+    const url = `http://localhost:${servInfo?.port}/get_file?path=${path}`;
+    return fetch(url)
+      .then(res => res.blob());
   }
-  const healthCheck = async (url: string) => {
-    for(let i = 0; i < 3; i++) {
-      try {
-        const res = await fetch(url);
-        if (res.status === 200) {
-          console.log('ok health check', url);
-          return true;
-        }
-      } catch (e) {
-        console.error('retry', i, url);
-      }
-      await sleep(200);
-    }
+  const getSrcBlobUrl = async (path: string) => {
+    const url = `http://localhost:${servInfo?.port}/get_file?path=${path}`;
+    return fetch(url)
+      .then(res => res.blob())
+      .then(blob => URL.createObjectURL(blob))
+  }
+
+  const healthCheck = async () => {
+    const url = `http://localhost:${servInfo?.port}/health`;
+    return fetch(url);
   }
 
   useEffect(() => {
@@ -53,35 +66,19 @@ export function HttpServerProvider({children}: Props) {
 
   useEffect(() => {
     if(servInfo == undefined) return;
-    healthCheck(`http://localhost:${servInfo.port}/health`).then(res => {
-      if (res) {
-        setHttpServer({
-          servInfo: servInfo,
-          getSrc: (path: string) => `http://localhost:${servInfo.port}/get_file?path=${path}`,
-          getSrcJson: async (path: string) => {
-            const url = `http://localhost:${servInfo.port}/get_file?path=${path}`;
-            return fetch(url)
-              .then(res => res.json());
-          },
-          getSrcText: async (path: string) => {
-            const url = `http://localhost:${servInfo.port}/get_file?path=${path}`;
-            return fetch(url)
-              .then(res => res.text())
-          },
-          getSrcBlob: async (path: string) => {
-            const url = `http://localhost:${servInfo.port}/get_file?path=${path}`;
-            return fetch(url)
-              .then(res => res.blob());
-          },
-          getSrcBlobUrl: async (path: string) => {
-            const url = `http://localhost:${servInfo.port}/get_file?path=${path}`;
-            return fetch(url)
-              .then(res => res.blob())
-              .then(blob => URL.createObjectURL(blob))
-          },
-        });
-      }
-    })
+      setHttpServer({
+        servInfo,
+        getSrc,
+        getSrcJson,
+        getSrcText,
+        getSrcBlob,
+        getSrcBlobUrl,
+        healthCheck
+      });
+    // healthCheck(`http://localhost:${servInfo.port}/health`).then(res => {
+    //   if (res) {
+    //   }
+    // })
     // const getSrc = (path: string) => `http://localhost:${servInfo.port}/get_file?path=${path}`;
     // const getSrcJson = <T>(path: string) => {
     //   return fetch(getSrc(path)).then(res => {

@@ -11,3 +11,7 @@ export function changeExtension(filePath: string, newExt: string): string {
 export function round4(num: number) {
   return Math.round(num * 10000) / 10000
 }
+
+export function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

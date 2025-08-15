@@ -1,5 +1,5 @@
 import {FontAwesomeIcon as Icon} from "@fortawesome/react-fontawesome";
-import {faCirclePlay, faCircleXmark} from "@fortawesome/free-solid-svg-icons";
+import {faCirclePlay, faCircleXmark, faUpDownLeftRight} from "@fortawesome/free-solid-svg-icons";
 import {useSortable} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
 import {PlayItem} from "@/components/PlayListView.tsx";
@@ -36,14 +36,18 @@ function PlayItemView({playItem, clickPlayItem, removePlayItem}: Props) {
          }}
          style={style}
     >
-      <div className="item-icon" onClick={() => clickPlayItem(playItem)}><Icon className="small" icon={faCirclePlay} /></div>
-
-      <div className="item-path"
-           {...mergedProps}
-      >
+      <div className="item-icon" {...mergedProps}>
+        <Icon className="small" icon={faUpDownLeftRight} />
+      </div>
+      <div className="item-icon" onClick={() => clickPlayItem(playItem)}>
+        <Icon className="small" icon={faCirclePlay} />
+      </div>
+      <div className="item-path" onClick={() => clickPlayItem(playItem)}>
         {playItem.path}
       </div>
-      <div className="close" onClick={() => removePlayItem(playItem)}><Icon icon={faCircleXmark} /></div>
+      <div className="close" onClick={() => removePlayItem(playItem)}>
+        <Icon icon={faCircleXmark} />
+      </div>
     </div>
   )
 }
