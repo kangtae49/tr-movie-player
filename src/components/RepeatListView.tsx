@@ -7,7 +7,7 @@ import {arrayMove, horizontalListSortingStrategy, SortableContext} from "@dnd-ki
 import {commands, RepeatItem, RepeatJson} from "@/bindings.ts";
 import SortableContainer from "@/components/SortableContainer.tsx";
 import RepeatItemView from "@/components/RepeatItemView.tsx";
-import {useEffect} from "react";
+import {useCallback, useEffect} from "react";
 import {useCurrentTimeStore} from "@/stores/currentTimeStore.ts";
 import useVideoControl from "@/components/useVideoControl.ts";
 import {useVideoRefStore} from "@/stores/videoRefStore.ts";
@@ -17,6 +17,7 @@ import {useStartTimeStore} from "@/stores/startTimeStore.ts";
 import {useEndTimeStore} from "@/stores/endTimeStore.ts";
 import {useIsRepeatStore} from "@/stores/isRepeatStore.ts";
 import {useRepeatDescStore} from "@/stores/repeatDescStore.ts";
+import {useDurationStore} from "@/stores/durationStore.ts";
 
 
 const getRepeatClassName = (startTime: number, endTime: number) => {
@@ -42,6 +43,7 @@ function RepeatListView() {
   const setIsRepeat = useIsRepeatStore((state) => state.setIsRepeat);
   const repeatDesc = useRepeatDescStore((state) => state.repeatDesc);
   const setRepeatDesc = useRepeatDescStore((state) => state.setRepeatDesc);
+  const duration = useDurationStore((state) => state.duration);
 
   const videoControl = useVideoControl();
 
@@ -107,20 +109,42 @@ function RepeatListView() {
     saveRepeatJson(uniqueList);
   }
 
-  const onChangeStartTime = (value: string) => {
+  const onFocusStartTime = useCallback(() => {
+    console.log('onFocusStartTime:', startTime);
+    const v = startTime;
+    if (!isNaN(v)) {
+      videoControl.changeCurrentTime(v);
+    }
+  }, [startTime]);
+
+  const onFocusEndTime = useCallback(() => {
+    console.log('onFocusEndTime:', endTime);
+    let v = endTime;
+    if (!isNaN(v)) {
+      // v = v - 0.2;
+      // v = Math.max(0, v);
+      // v = Math.min(duration, v);
+      videoControl.changeCurrentTime(v);
+    }
+  // }, [endTime, duration]);
+  }, [endTime]);
+
+
+  const onChangeStartTime = useCallback((value: string) => {
     const v = Number(value);
     if (!isNaN(v)) {
+      videoControl.changeCurrentTime(v);
       setStartTime(v);
-      videoControl.changeCurrentTime(v);
     }
-  }
-  const onChangeEndTime = (value: string) => {
+  }, []);
+
+  const onChangeEndTime = useCallback((value: string) => {
     const v = Number(value);
     if (!isNaN(v)) {
-      setEndTime(v);
       videoControl.changeCurrentTime(v);
+      setEndTime(v);
     }
-  }
+  }, []);
 
 
   const removeRepeatItem = (repeatItem: RepeatItem) => {
@@ -228,13 +252,13 @@ function RepeatListView() {
         <Icon icon={faLandMineOn} onClick={()=>clickStartGetCurrentTime()} />
         <div className="sec" title="Ctrl + ← →">
           <input type="number" value={startTime} step="any"
-                 onFocus={(e) => onChangeStartTime(e.target.value)}
+                 onFocus={(_e) => onFocusStartTime()}
                  onChange={(e)=> onChangeStartTime(e.target.value)}/>
         </div>
         <Icon icon={faLandMineOn} onClick={()=>clickEndGetCurrentTime()} />
         <div className="sec" title="Alt + ← →">
           <input type="number" value={endTime} step="any"
-                 onFocus={(e)=> onChangeEndTime(e.target.value)}
+                 onFocus={(_e)=> onFocusEndTime()}
                  onChange={(e)=> onChangeEndTime(e.target.value)}/>
         </div>
         <Icon icon={faLandMineOn} onClick={()=>clickGetCurrentSubtitle()} />

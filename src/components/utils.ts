@@ -7,3 +7,7 @@ export function formatSeconds(seconds: number): string {
 export function changeExtension(filePath: string, newExt: string): string {
   return filePath.replace(/\.[^/.]+$/, newExt.startsWith(".") ? newExt : "." + newExt);
 }
+
+export function round4(num: number) {
+  return Math.round(num * 10000) / 10000
+}

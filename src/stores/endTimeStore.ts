@@ -1,4 +1,5 @@
 import { create } from "zustand"
+import {round4} from "@/components/utils.ts";
 
 export interface EndTimeStore {
   endTime: number
@@ -10,6 +11,3 @@ export const useEndTimeStore = create<EndTimeStore>((set) => ({
   setEndTime: (endTime) => set({ endTime: round4(endTime) }),
 }))
 
-function round4(num: number) {
-  return Math.round(num * 10000) / 10000
-}

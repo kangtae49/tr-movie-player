@@ -17,7 +17,7 @@ import {useDurationStore} from "@/stores/durationStore.ts";
 import {usePlaybackRateStore} from "@/stores/playbackRateStore.ts";
 import {useSubtitleTypeStore} from "@/stores/subtitleTypeStore.ts";
 import {ScreenType, useScreenTypeStore} from "@/stores/screenTypeStore.ts";
-import {formatSeconds} from "@/components/utils.ts";
+import {formatSeconds, round4} from "@/components/utils.ts";
 import {useIsRepeatStore} from "@/stores/isRepeatStore.ts";
 import {useStartTimeStore} from "@/stores/startTimeStore.ts";
 import {useEndTimeStore} from "@/stores/endTimeStore.ts";
@@ -211,7 +211,7 @@ function MovieControlView() {
         <div className="left-control">
           <div className="current-time">
             <div>{formatSeconds(currentTime)} / {formatSeconds(duration)}</div>
-            <div>{currentTime}</div>
+            <div>{round4(currentTime)}</div>
           </div>
           <div className="checked-subtitle">
             <input type="checkbox"

@@ -1,4 +1,5 @@
 import { create } from "zustand"
+import {round4} from "@/components/utils.ts";
 
 export interface StartTimeStore {
   startTime: number
@@ -10,7 +11,3 @@ export const useStartTimeStore = create<StartTimeStore>((set) => ({
   setStartTime: (startTime) => set({ startTime: round4(startTime) }),
 }))
 
-
-function round4(num: number) {
-  return Math.round(num * 10000) / 10000
-}
