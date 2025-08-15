@@ -1,7 +1,7 @@
 import { create } from "zustand"
 
 
-export type ScreenType = "cover" | "fill" | "contain"
+export type ScreenType = "cover" | "fill" | "contain" | "scale-down" | "none"
 
 export interface ScreenTypeStore {
   screenType: ScreenType
@@ -9,6 +9,6 @@ export interface ScreenTypeStore {
 }
 
 export const useScreenTypeStore = create<ScreenTypeStore>((set) => ({
-  screenType: "cover",
+  screenType: "contain",
   setScreenType: (screenType) => set({ screenType }),
 }))

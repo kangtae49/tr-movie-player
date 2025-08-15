@@ -257,9 +257,11 @@ function MovieControlView() {
           </div>
           <div>
             <select value={screenType} onChange={(e)=>setScreenType(e.target.value as ScreenType)}>
-              <option value="cover">cover</option>
-              <option value="fit">fit</option>
               <option value="contain">contain</option>
+              <option value="fill">fill</option>
+              <option value="cover">cover</option>
+              <option value="scale-down">scale-down</option>
+              <option value="none">none</option>
             </select>
           </div>
           <div>

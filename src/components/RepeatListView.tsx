@@ -226,13 +226,13 @@ function RepeatListView() {
     <div className="repeat-list">
       <div className="list-header">
         <Icon icon={faLandMineOn} onClick={()=>clickStartGetCurrentTime()} />
-        <div className="sec">
+        <div className="sec" title="Ctrl + ← →">
           <input type="number" value={startTime} step="any"
                  onFocus={(e) => onChangeStartTime(e.target.value)}
                  onChange={(e)=> onChangeStartTime(e.target.value)}/>
         </div>
         <Icon icon={faLandMineOn} onClick={()=>clickEndGetCurrentTime()} />
-        <div className="sec">
+        <div className="sec" title="Alt + ← →">
           <input type="number" value={endTime} step="any"
                  onFocus={(e)=> onChangeEndTime(e.target.value)}
                  onChange={(e)=> onChangeEndTime(e.target.value)}/>
