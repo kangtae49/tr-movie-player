@@ -109,24 +109,24 @@ function RepeatListView() {
     saveRepeatJson(uniqueList);
   }
 
-  const onFocusStartTime = useCallback(() => {
+  const onFocusStartTime = useCallback(async () => {
     console.log('onFocusStartTime:', startTime);
     const v = startTime;
     if (!isNaN(v)) {
+      setIsRepeat(false);
       videoControl.changeCurrentTime(v);
+      await videoControl.pause();
     }
   }, [startTime]);
 
-  const onFocusEndTime = useCallback(() => {
+  const onFocusEndTime = useCallback(async () => {
     console.log('onFocusEndTime:', endTime);
     let v = endTime;
     if (!isNaN(v)) {
-      // v = v - 0.2;
-      // v = Math.max(0, v);
-      // v = Math.min(duration, v);
+      setIsRepeat(false);
       videoControl.changeCurrentTime(v);
+      await videoControl.pause();
     }
-  // }, [endTime, duration]);
   }, [endTime]);
 
 
