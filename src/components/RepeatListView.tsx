@@ -1,5 +1,5 @@
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome'
-import {faCirclePlus, faLandMineOn, faRepeat} from "@fortawesome/free-solid-svg-icons";
+import {faCirclePlus, faLandMineOn, faRepeat, faCirclePause} from "@fortawesome/free-solid-svg-icons";
 import {useRepeatItemsStore} from "@/stores/repeatItemsStore.ts";
 import {useSelectedRepeatItemStore} from "@/stores/selectedRepeatItemStore.ts";
 import {DndContext, DragEndEvent, DragStartEvent} from "@dnd-kit/core";
@@ -116,6 +116,7 @@ function RepeatListView() {
       setIsRepeat(false);
       videoControl.changeCurrentTime(v);
       await videoControl.pause();
+      setStartTime(v);
     }
   }, [startTime]);
 
@@ -126,6 +127,7 @@ function RepeatListView() {
       setIsRepeat(false);
       videoControl.changeCurrentTime(v);
       await videoControl.pause();
+      setEndTime(v);
     }
   }, [endTime]);
 
@@ -134,6 +136,7 @@ function RepeatListView() {
     const v = Number(value);
     if (!isNaN(v)) {
       videoControl.changeCurrentTime(v);
+      console.log('!!!!start time');
       setStartTime(v);
     }
   }, []);
@@ -142,6 +145,7 @@ function RepeatListView() {
     const v = Number(value);
     if (!isNaN(v)) {
       videoControl.changeCurrentTime(v);
+      console.log('!!!!end time');
       setEndTime(v);
     }
   }, []);
@@ -244,11 +248,13 @@ function RepeatListView() {
       setIsRepeat(true);
       videoControl.play().then();
     }
-  }, [selectedRepeatItem, startTime]);
+  }, [selectedRepeatItem]);
 
   return (
     <div className="repeat-list">
       <div className="list-header">
+        <Icon icon={faRepeat} className={`${getRepeatClassName(startTime, endTime)}`} onClick={() => clickCurRepeatItem()} />
+        <Icon icon={faCirclePause} onClick={() => videoControl.pause()} />
         <Icon icon={faLandMineOn} onClick={()=>clickStartGetCurrentTime()} />
         <div className="sec" title="Ctrl + ← →">
           <input type="number" value={startTime} step="any"
@@ -265,7 +271,6 @@ function RepeatListView() {
         <div className="desc">
           <input type="text" value={repeatDesc} onChange={(e) => setRepeatDesc(e.target.value)}/>
         </div>
-        <Icon icon={faRepeat} className={`${getRepeatClassName(startTime, endTime)}`} onClick={() => clickCurRepeatItem()} />
         <Icon icon={faCirclePlus} className={`middle ${getRepeatClassName(startTime, endTime)}`} onClick={()=> clickAddRepeatItem()}/>
       </div>
       <DndContext

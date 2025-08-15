@@ -50,7 +50,6 @@ function MoviePlayerView() {
     setVideoRef(vRef);
   }, [vRef]);
 
-  console.log('videoSrc:', videoSrc);
   return (
     <div className="movie-pane">
       <div className="video">

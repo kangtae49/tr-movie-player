@@ -122,6 +122,7 @@ function MovieControlView() {
   }, [subtitles]);
 
   const handleKeyDown = useCallback(async (e: KeyboardEvent) => {
+    e.preventDefault();
     const delta = 0.2;
     if (e.key === " " || e.key === "Space") {
       console.log("Space");
@@ -132,6 +133,7 @@ function MovieControlView() {
       let tm = startTime - delta;
       console.log(startTime, tm);
       tm = Math.max(0, tm);
+      // videoControl.changeCurrentTime(tm);
       setStartTime(tm);
     } else if (e.ctrlKey && e.key === "ArrowRight") {
       console.log("Ctrl + →");
@@ -139,6 +141,7 @@ function MovieControlView() {
       let tm = startTime + delta;
       console.log(startTime, tm);
       tm = Math.min(duration, tm);
+      // videoControl.changeCurrentTime(tm);
       setStartTime(tm);
     } else if (e.altKey && e.key === "ArrowLeft") {
       console.log("Alt + ←");
@@ -155,7 +158,7 @@ function MovieControlView() {
       tm = Math.min(duration, tm);
       setEndTime(tm);
     }
-  }, [currentTime, startTime, endTime, isPlay, isRepeat]);
+  }, [startTime, endTime]);
 
   useEffect(() => {
     if (!videoRef?.current) return;
