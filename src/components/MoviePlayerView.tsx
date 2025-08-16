@@ -1,4 +1,7 @@
-import React, {useEffect, useRef} from "react";
+import React, {useEffect, useRef, useState} from "react";
+import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome'
+import {faArrowRightRotate} from '@fortawesome/free-solid-svg-icons'
+
 import {useHttp} from "@/components/HttpServerProvider.tsx";
 import useVideoControl from "@/components/useVideoControl.ts";
 import {useVideoRefStore} from "@/stores/videoRefStore.ts";
@@ -23,9 +26,15 @@ function MoviePlayerView() {
   const screenType = useScreenTypeStore((state) => state.screenType);
   const videoControl = useVideoControl();
 
+  const [isHealth, setIsHealth] = useState(false);
+
   const togglePlay = async (e: React.MouseEvent) => {
     e.preventDefault();
     await videoControl.togglePlay();
+  }
+
+  const clickReload = () => {
+    window.location.reload();
   }
 
   useEffect(() => {
@@ -49,8 +58,31 @@ function MoviePlayerView() {
 
   useEffect(() => {
     setVideoRef(vRef);
+
   }, [vRef]);
 
+  useEffect(() => {
+    if (httpServer === undefined) return;
+    if (isHealth) return;
+    httpServer?.healthCheck()
+      .then((res) => {
+        console.log(res.status, httpServer.servInfo);
+        if (res.status == 200) {
+          setIsHealth(true);
+        } else {
+          setIsHealth(false);
+        }
+      })
+      .catch((_e) => {
+        setIsHealth(false);
+      })
+    ;
+  }, [httpServer, isHealth]);
+
+  if (httpServer === undefined) return null;
+  if (!isHealth) return (
+    <div className="reload" onClick={clickReload}><Icon icon={faArrowRightRotate}/></div>
+  );
   return (
     <div className="movie-pane">
       {videoSrc === undefined && (
