@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {ChangeEvent, MouseEventHandler, useCallback, useEffect, useState} from "react";
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome'
 import {faCirclePlay, faCirclePause, faMaximize, faVolumeHigh, faVolumeXmark, faRepeat} from '@fortawesome/free-solid-svg-icons'
 import {useVideoRefStore} from "@/stores/videoRefStore.ts";
@@ -82,7 +82,10 @@ function MovieControlView() {
 
   const keyDownHandler = useCallback(async (e: KeyboardEvent) => {
     const target = e.target as HTMLElement;
-    if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT") return;
+    if (target.tagName === "SELECT") {
+      target.blur();
+    }
+    if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
     // if (e.shiftKey && e.code === "Space") {
     //   e.preventDefault();
     //   e.stopPropagation();
@@ -168,7 +171,7 @@ function MovieControlView() {
       tm = Math.min(duration, tm);
       setEndTime(tm);
     }
-  }, [videoRef, startTime, endTime, isRepeatOnce]);
+  }, [videoRef, startTime, endTime, duration, isRepeatOnce]);
 
   const onPlay = () => {
     setIsPlay(true);
@@ -206,17 +209,49 @@ function MovieControlView() {
   };
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.currentTarget.blur();
     const vol = Number(e.target.value);
     videoControl.changeVolume(vol);
   };
 
-  const onChangeSubtitle = useCallback((path: string) => {
+  const onChangeCheckedSubtitle = (e: ChangeEvent<HTMLInputElement>) => {
+    e.currentTarget.blur();
+    setCheckedSubtitle(e.target.checked);
+  }
+
+  const onChangeSubtitle = (e: ChangeEvent<HTMLSelectElement>) => {
+    const path = e.target.value;
     const subtitle = subtitles.find((subtitle) => subtitle.path === path);
     setSelectedSubtitle(subtitle);
     setSubtitleType(`${subtitle?.lang || ""}.${subtitle?.ext || ""}`);
-  }, [subtitles]);
+    e.currentTarget.blur();
+  }
+
+  const onChangePlaybackRate = (e: ChangeEvent<HTMLSelectElement>) => {
+    const rate = Number(e.target.value);
+    videoControl.changePlaybackRate(rate);
+    e.currentTarget.blur();
+  }
 
 
+  // const onChangeSubtitle = useCallback((path: string) => {
+  //   const subtitle = subtitles.find((subtitle) => subtitle.path === path);
+  //   setSelectedSubtitle(subtitle);
+  //   setSubtitleType(`${subtitle?.lang || ""}.${subtitle?.ext || ""}`);
+  // }, [subtitles]);
+
+  // const onBlur = (e: React.FocusEvent<HTMLSelectElement>) => {
+  //   console.log("onBlur");
+  //   (e.currentTarget as HTMLSelectElement).blur();
+  // }
+
+  const onChangeScreenType = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setScreenType(e.target.value as ScreenType);
+    e.currentTarget.blur();
+  }
+  const handleMouseUp = (e: React.MouseEvent) => {
+    (e.currentTarget as HTMLInputElement).blur();
+  }
 
   useEffect(() => {
     if (!videoRef?.current) return;
@@ -272,6 +307,7 @@ function MovieControlView() {
           value={currentTime}
           onChange={handleTimeChange}
           onFocus={onTimeSliderFocus}
+          onMouseUp={handleMouseUp}
         />
       </div>
       <div className="etc-control">
@@ -283,15 +319,17 @@ function MovieControlView() {
           <div className="checked-subtitle">
             <input type="checkbox"
                    checked={checkedSubtitle}
-                   onChange={(e) => {setCheckedSubtitle(e.target.checked)}}
+                   onChange={onChangeCheckedSubtitle}
             />
           </div>
           <div className="select-subtitle">
             <select
               value={selectedSubtitle?.path || ""}
-              onChange={(e) => {onChangeSubtitle(e.target.value)}}>
+              onChange={onChangeSubtitle}>
+
               {subtitles.map((subtitle) => (
-                <option key={subtitle.path} value={subtitle.path}>{subtitle.lang || ""}.{subtitle.ext}</option>
+                <option key={subtitle.path}
+                        value={subtitle.path}>{subtitle.lang || ""}.{subtitle.ext}</option>
               ))}
             </select>
           </div>
@@ -311,7 +349,9 @@ function MovieControlView() {
         </div>
         <div className="right-control">
           <div>
-            <select value={playbackRate} onChange={(e)=>videoControl.changePlaybackRate(Number(e.target.value))}>
+            <select value={playbackRate}
+                    onChange={onChangePlaybackRate}
+            >
               <option value="0.25">x0.25</option>
               <option value="0.5">x0.5</option>
               <option value="0.75">x0.75</option>
@@ -323,7 +363,8 @@ function MovieControlView() {
             </select>
           </div>
           <div>
-            <select value={screenType} onChange={(e)=>setScreenType(e.target.value as ScreenType)}>
+            <select value={screenType}
+                    onChange={onChangeScreenType}>
               <option value="contain">contain</option>
               <option value="fill">fill</option>
               <option value="cover">cover</option>

@@ -62,34 +62,26 @@ export function HttpServerProvider({children}: Props) {
         setServInfo(res.data);
       }
     });
+    return () => {
+      setServInfo(undefined);
+      commands.shutdownHttpServer("tr-movie-player-http")
+        .then(() => {
+        })
+        .catch(() => {});
+    }
   }, [])
 
   useEffect(() => {
     if(servInfo == undefined) return;
-      setHttpServer({
-        servInfo,
-        getSrc,
-        getSrcJson,
-        getSrcText,
-        getSrcBlob,
-        getSrcBlobUrl,
-        healthCheck
-      });
-    // healthCheck(`http://localhost:${servInfo.port}/health`).then(res => {
-    //   if (res) {
-    //   }
-    // })
-    // const getSrc = (path: string) => `http://localhost:${servInfo.port}/get_file?path=${path}`;
-    // const getSrcJson = <T>(path: string) => {
-    //   return fetch(getSrc(path)).then(res => {
-    //     return res.json() as Promise<T>;
-    //   })
-    // };
-    // const getSrcText = async (path: string): Promise<string> => {
-    //   return fetch(getSrc(path)).then(res => res.text());
-    // };
-
-
+    setHttpServer({
+      servInfo,
+      getSrc,
+      getSrcJson,
+      getSrcText,
+      getSrcBlob,
+      getSrcBlobUrl,
+      healthCheck
+    });
   }, [servInfo]);
   return (
     <HttpContext.Provider value={httpServer}>
