@@ -1,3 +1,5 @@
+export const MIN_DELTA = 0.5;
+
 export function formatSeconds(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
@@ -14,4 +16,8 @@ export function round4(num: number) {
 
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function getFileName(fullPath: string): string {
+  return fullPath.split(/[/\\]/).pop() || "";
 }

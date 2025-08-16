@@ -12,7 +12,7 @@ import {useCurrentTimeStore} from "@/stores/currentTimeStore.ts";
 import useVideoControl from "@/components/useVideoControl.ts";
 import {useVideoRefStore} from "@/stores/videoRefStore.ts";
 import {useSelectedPlayItemStore} from "@/stores/selectedPlayItemStore.ts";
-import {changeExtension} from "@/components/utils.ts";
+import {changeExtension, MIN_DELTA} from "@/components/utils.ts";
 import {useStartTimeStore} from "@/stores/startTimeStore.ts";
 import {useEndTimeStore} from "@/stores/endTimeStore.ts";
 import {useIsRepeatStore} from "@/stores/isRepeatStore.ts";
@@ -21,7 +21,7 @@ import {useDurationStore} from "@/stores/durationStore.ts";
 
 
 const getRepeatClassName = (startTime: number, endTime: number) => {
-  if (endTime - startTime >= 1) {
+  if (endTime - startTime >= MIN_DELTA) {
     return ""
   } else {
     return "inactive"
@@ -259,14 +259,18 @@ function RepeatListView() {
       <div className="list-header">
         <Icon icon={faRepeat} className={`${getRepeatClassName(startTime, endTime)}`} onClick={() => clickCurRepeatItem()} />
         <Icon icon={faCirclePause} onClick={() => videoControl.pause()} />
-        <Icon icon={faLandMineOn} onClick={()=>clickStartGetCurrentTime()} />
-        <div className="sec" title="Ctrl + ← →">
+        <div title="Shift + ↓" >
+          <Icon icon={faLandMineOn} onClick={()=>clickStartGetCurrentTime()} />
+        </div>
+        <div className="sec" title="Shift + ← →">
           <input type="number" value={startTime} step="any"
                  onFocus={(_e) => onFocusStartTime()}
                  onChange={(e)=> onChangeStartTime(e.target.value)}/>
         </div>
-        <Icon icon={faLandMineOn} onClick={()=>clickEndGetCurrentTime()} />
-        <div className="sec" title="Alt + ← →">
+        <div title="Ctrl + ↓">
+          <Icon icon={faLandMineOn} onClick={()=>clickEndGetCurrentTime()} />
+        </div>
+        <div className="sec" title="Ctrl + ← →">
           <input type="number" value={endTime} step="any"
                  onFocus={(_e)=> onFocusEndTime()}
                  onChange={(e)=> onChangeEndTime(e.target.value)}/>

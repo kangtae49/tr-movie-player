@@ -6,6 +6,7 @@ import {PlayItem} from "@/components/PlayListView.tsx";
 import {useSelectedPlayItemStore} from "@/stores/selectedPlayItemStore.ts";
 import {useSelectedSubtitleStore} from "@/stores/selectedSubtitleStore.ts";
 import {useIsPlayStore} from "@/stores/isPlayStore.ts";
+import {getFileName} from "@/components/utils.ts";
 
 type Props = {
   playItem: PlayItem
@@ -36,14 +37,14 @@ function PlayItemView({playItem, clickPlayItem, removePlayItem}: Props) {
          }}
          style={style}
     >
-      <div className="item-icon" {...mergedProps}>
-        <Icon className="small" icon={faUpDownLeftRight} />
-      </div>
       <div className="item-icon" onClick={() => clickPlayItem(playItem)}>
         <Icon className="small" icon={faCirclePlay} />
       </div>
-      <div className="item-path" onClick={() => clickPlayItem(playItem)}>
-        {playItem.path}
+      <div className="item-path" title={playItem.path} onClick={() => clickPlayItem(playItem)}>
+        {getFileName(playItem.path)}
+      </div>
+      <div className="item-icon" {...mergedProps}>
+        <Icon className="small" icon={faUpDownLeftRight} />
       </div>
       <div className="close" onClick={() => removePlayItem(playItem)}>
         <Icon icon={faCircleXmark} />

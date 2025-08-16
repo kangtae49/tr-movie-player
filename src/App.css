@@ -152,7 +152,6 @@ video {
 
 .item {
   display: flex;
-
   text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
 }
 
@@ -162,6 +161,7 @@ video {
 
 .item .item-path  {
   cursor: pointer;
+  text-overflow: ellipsis; white-space: nowrap; overflow: hidden
 }
 
 .item .item-start,.item-end {
@@ -169,7 +169,9 @@ video {
   width: 110px;
 }
 .item .item-desc {
+  flex: 1;
   cursor: pointer;
+  text-overflow: ellipsis; white-space: nowrap; overflow: hidden
 }
 
 

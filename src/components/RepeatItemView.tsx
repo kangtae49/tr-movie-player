@@ -4,6 +4,7 @@ import {useSortable} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
 import {FontAwesomeIcon as Icon} from "@fortawesome/react-fontawesome";
 import {faCircleXmark, faRepeat, faUpDownLeftRight} from "@fortawesome/free-solid-svg-icons";
+import {MIN_DELTA} from "@/components/utils.ts";
 
 type Props = {
   repeatItem: RepeatItem
@@ -12,7 +13,7 @@ type Props = {
 }
 
 const getRepeatClassName = (startTime: number, endTime: number) => {
-  if (endTime - startTime >= 1.0) {
+  if (endTime - startTime >= MIN_DELTA) {
     return ""
   } else {
     return "inactive"
@@ -41,9 +42,6 @@ function RepeatItemView({repeatItem, clickRepeatItem, removeRepeatItem}: Props) 
          }}
          style={style}
     >
-      <div className="item-icon" {...mergedProps}>
-        <Icon icon={faUpDownLeftRight} />
-      </div>
       <div className="item-icon" onClick={() => clickRepeatItem(repeatItem)}>
         <Icon className={getRepeatClassName(repeatItem.start, repeatItem.end)} icon={faRepeat} />
       </div>
@@ -55,6 +53,9 @@ function RepeatItemView({repeatItem, clickRepeatItem, removeRepeatItem}: Props) 
       </div>
       <div className="item-desc" onClick={()=> clickRepeatItem(repeatItem)}>
         {repeatItem.desc}
+      </div>
+      <div className="item-icon" {...mergedProps}>
+        <Icon icon={faUpDownLeftRight} />
       </div>
       <div className="close" onClick={() => removeRepeatItem(repeatItem)}><Icon icon={faCircleXmark} /></div>
     </div>
