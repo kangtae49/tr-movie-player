@@ -120,10 +120,27 @@ video {
   align-items: center;
   justify-content: center;
   object-fit: contain;
-  cursor: pointer;
 }
 
-.no-video img {
+.no-video .logo {
+  height: 100%;
+  padding: 5px;
+  cursor: pointer;
+}
+.no-video .message {
+  padding: 5px;
+}
+.message .row {
+  display: flex;
+}
+.message .row .label {
+  flex: 0 0 100px;
+}
+.message .row .desc {
+  flex: 1;
+}
+
+.logo img {
   width: 100%;
   height: 100%;
 }

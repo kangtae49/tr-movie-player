@@ -18,6 +18,7 @@ import {useEndTimeStore} from "@/stores/endTimeStore.ts";
 import {useIsRepeatStore} from "@/stores/isRepeatStore.ts";
 import {useRepeatDescStore} from "@/stores/repeatDescStore.ts";
 import {useDurationStore} from "@/stores/durationStore.ts";
+import {useIsRepeatOnceStore} from "@/stores/isRepeatOnceStore.ts";
 
 
 const getRepeatClassName = (startTime: number, endTime: number) => {
@@ -43,6 +44,7 @@ function RepeatListView() {
   const setIsRepeat = useIsRepeatStore((state) => state.setIsRepeat);
   const repeatDesc = useRepeatDescStore((state) => state.repeatDesc);
   const setRepeatDesc = useRepeatDescStore((state) => state.setRepeatDesc);
+  const setIsRepeatOnce = useIsRepeatOnceStore((state) => state.setIsRepeatOnce);
   // const duration = useDurationStore((state) => state.duration);
 
   const videoControl = useVideoControl();

@@ -274,11 +274,12 @@ function MovieControlView() {
       videoRef.current?.removeEventListener("ratechange", onRateChange);
 
     };
-  }, [videoRef])
+  }, [videoRef, videoSrc])
 
   useEffect( () => {
     if (getRepeatClassName(isRepeat, startTime, endTime) !== "") return;
     if (currentTime >= endTime) {
+      console.log("isRepeat: ", isRepeat);
       console.log("isRepeatOnce: ", isRepeatOnce);
       if (isRepeatOnce) {
         setIsRepeatOnce(false);

@@ -17,7 +17,7 @@ function MoviePlayerView() {
   const httpServer = useHttp();
   const vRef = useRef<HTMLVideoElement>(null);
   const setVideoRef = useVideoRefStore((state) => state.setVideoRef);
-  const videoRef = useVideoRefStore((state) => state.videoRef);
+  // const videoRef = useVideoRefStore((state) => state.videoRef);
   const videoSrc = useVideoSrcStore((state) => state.videoSrc);
   const subtitleSrc = useSubtitleSrcStore((state) => state.subtitleSrc);
   const selectedSubtitle = useSelectedSubtitleStore((state) => state.selectedSubtitle);
@@ -57,9 +57,9 @@ function MoviePlayerView() {
   }, [selectedSubtitle, httpServer]);
 
   useEffect(() => {
+    if (vRef === null) return;
     setVideoRef(vRef);
-
-  }, [vRef]);
+  }, [videoSrc]);
 
   useEffect(() => {
     if (httpServer === undefined) return;
@@ -83,14 +83,41 @@ function MoviePlayerView() {
   if (!isHealth) return (
     <div className="reload" onClick={clickReload}><Icon icon={faArrowRightRotate}/></div>
   );
+
   return (
     <div className="movie-pane">
       {videoSrc === undefined && (
         <div className="no-video">
-          <img src="/tr-movie-player.svg" alt="Open Video File" onClick={() => videoControl.openPlayDialog()}/>
+          <div className="logo">
+            <img src="/tr-movie-player.svg" alt="Open Video File" onClick={() => videoControl.openPlayDialog()}/>
+          </div>
+          <div className="message">
+            <div>
+              <b>Keyboard Shortcuts</b>
+            </div>
+            <div className="row">
+              <div className="label">Ctrl  + ← → </div><div>Add 0.2 seconds to `Start Time`</div>
+            </div>
+            <div className="row">
+              <div className="label">Shift + ← → </div><div>Add 0.2 seconds to `End Time`</div>
+            </div>
+            <div className="row">
+              <div className="label">Ctrl  + ↓   </div><div>Set `Start Time` to the current time. </div>
+            </div>
+            <div className="row">
+              <div className="label">Shift + ↓   </div><div>Set `End Time` to the current time. </div>
+            </div>
+            <div className="row">
+              <div className="label">Ctrl  + Space </div><div>Play the video from `Start Time`</div>
+            </div>
+            <div className="row">
+              <div className="label">Shift + Space </div><div>Play the video from (`End Time` - 2s)</div>
+            </div>
+          </div>
+
         </div>
       )}
-      {videoRef && <div className="video">
+      {videoSrc && <div className="video">
         <video
           ref={vRef}
           src={videoSrc}
